@@ -1,0 +1,82 @@
+{
+  "landmarks": [
+    {
+      "name": "Barnett Ranch Preserve",
+      "lat": 33.0010857,
+      "lng": -116.8637787,
+      "kind": "park"
+    },
+    {
+      "name": "Dos Picos County Park",
+      "lat": 32.9978084,
+      "lng": -116.940715,
+      "kind": "park"
+    },
+    {
+      "name": "Guy B Woodward Museum",
+      "lat": 33.0452096,
+      "lng": -116.8634167,
+      "kind": "museum"
+    },
+    {
+      "name": "Hawk Watch - Wildlife Institute",
+      "lat": 33.0252251,
+      "lng": -116.9282971,
+      "kind": "wildlife"
+    },
+    {
+      "name": "Luelf Pond County Preserve",
+      "lat": 32.9915725,
+      "lng": -116.8968868,
+      "kind": "water"
+    },
+    {
+      "name": "Mount Woodson Summit - Potato Chip Rock",
+      "lat": 33.0092674,
+      "lng": -116.9742491,
+      "kind": "peak"
+    },
+    {
+      "name": "Mt. Gower County Preserve",
+      "lat": 33.024839,
+      "lng": -116.79692,
+      "kind": "peak"
+    },
+    {
+      "name": "Mt. Woodson Castle",
+      "lat": 33.013678,
+      "lng": -116.9552061,
+      "kind": "castle"
+    },
+    {
+      "name": "Ramona Airport & Helicopter Museum",
+      "lat": 33.0408293,
+      "lng": -116.9122255,
+      "kind": "air"
+    },
+    {
+      "name": "Ramona Grasslands Preserve",
+      "lat": 33.0332762,
+      "lng": -116.9505358,
+      "kind": "park"
+    },
+    {
+      "name": "Ramona Sign",
+      "lat": 33.0134366,
+      "lng": -116.9085253,
+      "kind": "sign"
+    },
+    {
+      "name": "Ramona Wildlife Center",
+      "lat": 33.0228118,
+      "lng": -116.9244232,
+      "kind": "wildlife"
+    },
+    {
+      "name": "San Diego Zoo Safari Park",
+      "lat": 33.0974458,
+      "lng": -116.9957227,
+      "kind": "wildlife"
+    }
+  ]
+}
