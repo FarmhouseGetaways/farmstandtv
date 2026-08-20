@@ -1,0 +1,3 @@
+# Static site. No build step — files ship exactly as they are here.
+[build]
+  publish = "."

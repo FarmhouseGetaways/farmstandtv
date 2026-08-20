@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /
+
+# STAGING. Change to "Allow: /" the day farmstandtv.com points here.

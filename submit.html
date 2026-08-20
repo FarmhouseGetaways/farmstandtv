@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get your farm stand on the map | Farmstand.TV</title>
+<meta name="description" content="Submit your information to get your farm stand on the official Ramona Farmstand Map — the printed one, the Google Maps version and the Google Earth version.">
+<link rel="canonical" href="https://farmstandtv.com/submit">
+<meta property="og:title" content="Get your farm stand on the map | Farmstand.TV">
+<meta property="og:description" content="Submit your information to get your farm stand on the official Ramona Farmstand Map — the printed one, the Google Maps version and the Google Earth version.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://farmstandtv.com/images/ramona-farmstand-map.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<meta name="theme-color" content="#0B0D0A">
+<script>
+// Arms the scroll reveal. Runs only if JS is alive, so any failure below
+// leaves every section plainly visible rather than blank.
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
+</script>
+<link rel="stylesheet" href="/css/site.css?v=612ae8b3">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <a class="wordmark" href="/"><img src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV"></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/maps">The Map</a>
+      <a href="/tours">Tours</a>
+      <a href="/submit" aria-current="page">Add a Stand</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="band-tight chan" data-ch="01" style="padding-top:clamp(3rem,7vw,5rem);">
+    <div class="wrap centered">
+      <span class="kicker">For farm stand owners</span>
+      <h1 class="mega" style="max-width:15ch;margin-inline:auto;">Get on <em class="lit">the map.</em></h1>
+      <p class="lede">Submit your information and we will add your farm stand to the official Ramona Farmstand Map &mdash; the printed one, the Google Maps version people navigate with, and the Google Earth version. It is free, and there is nothing to sign up for.</p>
+    </div>
+  </section>
+
+  <section class="band-tight paper">
+    <div class="wrap" style="max-width:48rem;">
+      <div class="form-card">
+        <form action='/thanks' method='POST' name='farmstand' data-netlify="true" netlify-honeypot="company">
+          <input type="hidden" name="form-name" value="farmstand">
+          <p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
+
+          <p class="formnote">Everything marked <em>listed</em> appears publicly on the map. Your name does not.</p>
+
+          <div class="field-pair">
+            <div class="field"><label for="fn">Owner first name <span class="not-listed">not listed</span></label><input id="fn" name="owner-first" type="text" autocomplete="given-name" required></div>
+            <div class="field"><label for="ln">Owner last name <span class="not-listed">not listed</span></label><input id="ln" name="owner-last" type="text" autocomplete="family-name"></div>
+          </div>
+
+          <div class="field"><label for="sn">Farm stand name <span class="listed">listed</span></label><input id="sn" name="stand-name" type="text" required></div>
+          <div class="field"><label for="hrs">Hours of operation <span class="listed">listed</span></label><input id="hrs" name="hours" type="text" placeholder="Open 24 hours, honor system &mdash; or Fri&ndash;Sun, 9 to 4"></div>
+          <div class="field"><label for="sells">What do you sell? <span class="listed">listed</span></label><input id="sells" name="sells" type="text" placeholder="Eggs, honey, sourdough, flowers&hellip;"></div>
+
+          <div class="field-pair">
+            <div class="field"><label for="em">Contact email <span class="listed">listed</span></label><input id="em" name="email" type="email" autocomplete="email" required></div>
+            <div class="field"><label for="ph">Phone <span class="listed">listed</span></label><input id="ph" name="phone" type="tel" autocomplete="tel"></div>
+          </div>
+
+          <div class="field"><label for="a1">Street address <span class="listed">listed</span></label><input id="a1" name="address-1" type="text" autocomplete="address-line1" required></div>
+          <div class="field"><label for="a2">Street address line 2</label><input id="a2" name="address-2" type="text" autocomplete="address-line2"></div>
+
+          <div class="field-trio">
+            <div class="field"><label for="ct">City <span class="listed">listed</span></label><input id="ct" name="city" type="text" autocomplete="address-level2" value="Ramona" required></div>
+            <div class="field"><label for="st">State <span class="listed">listed</span></label><input id="st" name="state" type="text" autocomplete="address-level1" value="CA" required></div>
+            <div class="field"><label for="zp">Zip <span class="listed">listed</span></label><input id="zp" name="zip" type="text" autocomplete="postal-code" value="92065" required></div>
+          </div>
+
+          <div class="field"><label for="url">Website or Instagram</label><input id="url" name="url" type="text" placeholder="Optional"></div>
+
+          <button class="btn btn-go" type="submit">Submit your farm stand</button>
+          <p class="fine">We read every one and we visit before we list. The address is what places your pin, so please make it the one a car should drive to &mdash; not a mailing address.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="band-tight paper-2">
+    <div class="wrap" style="max-width:48rem;">
+      <span class="kicker">What happens next</span>
+      <ol class="steps">
+        <li><b>We read it.</b> Every submission comes straight to us.</li>
+        <li><b>We come and see you.</b> Nothing goes on the map that we have not stood in front of.</li>
+        <li><b>You go on all three maps</b> &mdash; the printed illustration, the Google Maps version people navigate with, and Google Earth.</li>
+        <li><b>You may end up in a tour.</b> If it is a good story, Carissa will ask about filming.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band chan" data-ch="06">
+    <div class="wrap centered rv">
+      <span class="kicker">Also ours</span>
+      <h2 class="display">Come and stay <em class="lit">while you are here.</em></h2>
+      <p class="lede">Cory and Carissa run two places in Ramona and the farm stand at the back gate of one of them. If you are driving the map, you may as well wake up in the middle of it.</p>
+      <div class="trio trio-2" style="margin-top:2.6rem;text-align:left;">
+        <div class="cell">
+          <h3>Farmhouse Getaways</h3>
+          <p>Two properties in Ramona &mdash; a four-acre working ranch and an eight-acre mountain retreat. Book direct, no booking fees.</p>
+          <div class="btn-row"><a class="btn btn-go" href="https://farmhousegetaways.com/" target="_blank" rel="noopener">Farmhouse Getaways</a></div>
+        </div>
+        <div class="cell">
+          <h3>Mini Barn Market</h3>
+          <p>Carissa&rsquo;s own farm stand, at the back gate of the ranch. Honor system, air conditioned, open twenty-four hours a day.</p>
+          <div class="btn-row"><a class="btn btn-line" href="https://www.minibarnmarket.com/" target="_blank" rel="noopener">Mini Barn Market</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img class="foot-logo" src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV">
+        <p style="margin:0 0 .7rem;">A show about the farm stands of Southern California. Made in Ramona by Cory &amp; Carissa.</p>
+        <p style="margin:0;"><a href="mailto:farmstandtv@gmail.com">farmstandtv@gmail.com</a></p>
+      </div>
+      <div>
+        <h2>The map</h2>
+        <ul>
+          <li><a href="/maps">The Ramona Farmstand Map</a></li>
+          <li><a href="/downloads/Ramona-Farmstand-Map.pdf">Printable version</a></li>
+          <li><a href="/submit">Add a stand</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://www.youtube.com/@FarmstandTV" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="https://www.minibarnmarket.com/" target="_blank" rel="noopener">Mini Barn Market</a></li>
+          <li><a href="https://farmhousegetaways.com/" target="_blank" rel="noopener">Farmhouse Getaways</a></li>
+          <li><a href="https://www.instagram.com/minibarnmarket/" target="_blank" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-fine">
+      <span>&copy; 2026 Farmstand.TV</span>
+      <span>Ramona, California</span>
+    </div>
+  </div>
+</footer>
+<script>
+/* Not every video has a maxresdefault thumbnail. When one is missing YouTube
+   may return a 404 (onerror fires) OR a 120px grey placeholder (it does not).
+   Rad Living Ranch was the second kind, which is why its tile was blank.
+   Checking the decoded width catches both. */
+function ytFallback(img, loaded) {
+  var alt = img.getAttribute("data-fallback");
+  if (!alt) return;
+  if (loaded && img.naturalWidth > 200) return;   // a real thumbnail
+  img.removeAttribute("data-fallback");
+  img.src = alt;
+}
+
+// Click a tour and the player replaces the thumbnail in place. Nothing from
+// YouTube loads until then — no scripts, no cookies, no cost to anyone who
+// never presses play.
+(function () {
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest(".yt") : null;
+    if (!btn || !btn.dataset.yt) return;
+    var f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/" + btn.dataset.yt +
+            "?autoplay=1&rel=0&playsinline=1&modestbranding=1";
+    f.title = btn.dataset.title || "Farmstand.TV";
+    f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; " +
+              "gyroscope; picture-in-picture; web-share";
+    f.allowFullscreen = true;
+    f.setAttribute("frameborder", "0");
+    btn.parentNode.replaceChild(f, btn);
+  });
+})();
+</script>
+<script>
+// Reveal each section as it arrives. If anything here throws, the catch
+// unhides everything — a decorative animation must never cost someone the
+// content.
+(function () {
+  try {
+    var els = document.querySelectorAll('.rv');
+    if (!('IntersectionObserver' in window)) throw 0;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    for (var i = 0; i < els.length; i++) {
+      // anything already on screen at load reveals immediately
+      if (els[i].getBoundingClientRect().top < window.innerHeight) els[i].classList.add('in');
+      else io.observe(els[i]);
+    }
+  } catch (err) {
+    document.documentElement.className = document.documentElement.className.replace(/js/, '');
+  }
+})();
+</script>
+</body>
+</html>
