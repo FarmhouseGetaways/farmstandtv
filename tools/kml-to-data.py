@@ -24,6 +24,13 @@ KML_URL = f"https://www.google.com/maps/d/kml?mid={MID}&forcekml=1"
 NS = {"k": "http://www.opengis.net/kml/2.2"}
 ROOT = Path(__file__).resolve().parent.parent
 
+# Our own stands. map.js sorts a stand carrying "ours": true to the top of the
+# list and tags it "Ours" (js/map.js:191 and :358). The My Map has no field for
+# that, so it is applied here by name — otherwise every regeneration silently
+# drops Mini Barn Market back into the alphabetical middle with the tag gone,
+# which is exactly what the owner noticed on 20 Aug 2026.
+OURS = {"mini barn market"}
+
 # The My Map has no icon field, so landmark glyphs are chosen here by name.
 # GLYPH in js/map.js defines what is available: peak, park, water, museum,
 # castle, wildlife, air, sign, place. Anything unlisted falls back to "place".
@@ -100,6 +107,8 @@ def build_stands(folder):
         except (KeyError, ValueError):
             pass
         stand = {"name": name}
+        if name.strip().lower() in OURS:
+            stand["ours"] = True
         if lat is not None:
             stand["lat"], stand["lng"] = lat, lng
         # "note" is where opening hours live on this map.

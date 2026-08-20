@@ -147,6 +147,7 @@
     },
     {
       "name": "Mini Barn Market",
+      "ours": true,
       "lat": 33.0217514,
       "lng": -116.9316667,
       "address": "17111 Whirlwind Ln, Ramona, CA 92065",
