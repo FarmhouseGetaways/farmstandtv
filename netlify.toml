@@ -1,3 +1,10 @@
 # Static site. No build step — files ship exactly as they are here.
 [build]
   publish = "."
+
+# submission-created.mjs runs after every verified form submission and pushes
+# an alert to a phone. Without this block the function is not built and the
+# alerts silently stop.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
