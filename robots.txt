@@ -1,4 +1,7 @@
+# Live. farmstandtv.com and farmstand.tv both serve this site, so it is
+# indexable. Opened up 20 Aug 2026 — it was Disallow: / while the domain
+# still pointed elsewhere.
 User-agent: *
-Disallow: /
+Allow: /
 
-# STAGING. Change to "Allow: /" the day farmstandtv.com points here.
+Sitemap: https://farmstand.tv/sitemap.xml

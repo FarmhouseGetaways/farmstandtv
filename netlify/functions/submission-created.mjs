@@ -87,7 +87,11 @@ async function toNtfy(alert) {
 }
 
 async function toWebhook(alert, formName, data) {
-  const url = (process.env.ALERT_WEBHOOK || "").trim();
+  // The app's owner-alert endpoint. Not a secret — it rejects anything
+  // without the key — so it is defaulted here rather than being a third
+  // variable to set on three sites. ALERT_WEBHOOK overrides it if the app
+  // ever moves.
+  const url = (process.env.ALERT_WEBHOOK || "https://farmhousegetawaysapp.netlify.app/.netlify/functions/push-alert").trim();
   if (!url) return "skipped";
   const key = (process.env.ALERT_WEBHOOK_KEY || "").trim();
   const res = await fetch(url, {
