@@ -72,18 +72,31 @@ function summarise(formName, data) {
     newsletter: "Newsletter Signup",
   }[formName] || formName;
 
-  const who = [data["first-name"], data["last-name"]].filter(Boolean).join(" ").trim()
-    || data["stand-name"] || data.name || data.email || "someone";
-
+  // A person is one line. Split into "Name: Marguerite" and "Surname: Ellis"
+  // a lock screen reads like a spreadsheet, and it costs a row of the few a
+  // notification gets. Built from the name fields only — `who` above falls
+  // back to the stand name, which must never end up after "Owner:".
+  const JOINED = ["first-name", "last-name", "owner-first", "owner-last", "stand-name"];
+  const person = (first, last) =>
+    [data[first], data[last]].map((v) => (v || "").toString().trim()).filter(Boolean).join(" ");
   const lines = [];
+  const guest = person("first-name", "last-name");
+  const owner = person("owner-first", "owner-last");
+  // The stand is the headline of a farm stand submission; its owner is who to
+  // write back to. Anywhere else there is no stand and this does nothing.
+  const stand = (data["stand-name"] || "").toString().trim();
+  if (stand) lines.push(`Stand: ${stand}`);
+  if (guest) lines.push(`Name: ${guest}`);
+  if (owner) lines.push(`Owner: ${owner}`);
   for (const key of INTERESTING) {
+    if (JOINED.includes(key)) continue;
     const value = (data[key] || "").toString().trim();
     if (value) lines.push(`${label(key)}: ${value}`);
   }
   // Anything the form collects that is not in the list above still matters —
   // a form gains a field far more often than this file gets updated.
   for (const [key, value] of Object.entries(data)) {
-    if (INTERESTING.includes(key)) continue;
+    if (INTERESTING.includes(key) || JOINED.includes(key)) continue;
     if (key === "bot-field" || key === "company" || key === "form-name") continue;
     const v = (value || "").toString().trim();
     if (v) lines.push(`${label(key)}: ${v}`);
