@@ -36,6 +36,28 @@
 
 const SITE = process.env.SITE_LABEL || "Farmstand.TV";
 
+/**
+ * Field names as a person would read them. A notification is read on a lock
+ * screen in a couple of seconds, and "owner-first: Dale" is a database column
+ * where "Owner: Dale" is a sentence.
+ *
+ * Anything not listed still appears — a form gains a field far more often than
+ * this list gets updated — it just falls back to a tidied version of its own
+ * name rather than being dropped.
+ */
+const LABELS = {
+  "first-name": "Name", "last-name": "Surname", name: "Name",
+  "owner-first": "Owner", "owner-last": "Owner surname",
+  "stand-name": "Stand", email: "Email", phone: "Phone",
+  address: "Address", "address-1": "Address", "address-2": "Address line 2",
+  city: "City", state: "State", zip: "Zip", url: "Website",
+  hours: "Hours", sells: "Sells", message: "Message",
+  guests: "Guests", dates: "Dates", nights: "Nights",
+};
+
+const label = (key) =>
+  LABELS[key] || key.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase());
+
 /** The fields worth putting in a notification, in the order a person reads. */
 const INTERESTING = [
   "stand-name", "first-name", "last-name", "name",
@@ -43,7 +65,12 @@ const INTERESTING = [
 ];
 
 function summarise(formName, data) {
-  const pretty = { contact: "enquiry", farmstand: "farmstand submission" }[formName] || formName;
+  const pretty = {
+    contact: "Inquiry",
+    farmstand: "Farm Stand Submission",
+    "group-inquiry": "Group Inquiry",
+    newsletter: "Newsletter Signup",
+  }[formName] || formName;
 
   const who = [data["first-name"], data["last-name"]].filter(Boolean).join(" ").trim()
     || data["stand-name"] || data.name || data.email || "someone";
@@ -51,7 +78,7 @@ function summarise(formName, data) {
   const lines = [];
   for (const key of INTERESTING) {
     const value = (data[key] || "").toString().trim();
-    if (value) lines.push(`${key}: ${value}`);
+    if (value) lines.push(`${label(key)}: ${value}`);
   }
   // Anything the form collects that is not in the list above still matters —
   // a form gains a field far more often than this file gets updated.
@@ -59,11 +86,15 @@ function summarise(formName, data) {
     if (INTERESTING.includes(key)) continue;
     if (key === "bot-field" || key === "company" || key === "form-name") continue;
     const v = (value || "").toString().trim();
-    if (v) lines.push(`${key}: ${v}`);
+    if (v) lines.push(`${label(key)}: ${v}`);
   }
 
+  // "Mini Barn Market Inquiry" reads as a thing that happened. The old form,
+  // "Mini Barn Market: enquiry from Marguerite Ellis", spent its first and
+  // most legible half on punctuation and the sender's name — and the name is
+  // the first line of the body anyway.
   return {
-    title: `${SITE}: ${pretty} from ${who}`,
+    title: `${SITE} ${pretty}`,
     body: lines.join("\n").slice(0, 1200) || "No details were filled in.",
   };
 }
