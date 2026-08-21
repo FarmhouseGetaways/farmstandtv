@@ -51,9 +51,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
   <section class="band-tight paper">
     <div class="wrap" style="max-width:48rem;">
       <div class="form-card">
-        <form action='/thanks' method='POST' name='farmstand' data-netlify="true" netlify-honeypot="company">
+        <form action='/thanks' method='POST' name='farmstand' data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="farmstand">
-          <p class="hp"><label>Leave this empty <input name="company" tabindex="-1" autocomplete="off"></label></p>
+          <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off" aria-hidden="true"></label></p>
 
           <p class="formnote">Everything marked <em>listed</em> appears publicly on the map. Your name does not.</p>
 
