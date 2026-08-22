@@ -26,6 +26,20 @@ export default async () => {
         webhookKey: set("ALERT_WEBHOOK_KEY"),
         ntfyTopic: set("NTFY_TOPIC"),
       },
+      // Contacts from every form on this site are stored on the shared
+      // EmailOctopus list, tagged with the form they came through. Without
+      // both of these the submission still reaches the Netlify inbox and still
+      // pushes an alert — it simply is not filed anywhere.
+      contacts: {
+        apiKey: set("EMAILOCTOPUS_API_KEY"),
+        listId: set("EMAILOCTOPUS_LIST_ID"),
+        // Optional. Unset, EmailOctopus's own "joined the list" trigger owns
+        // the welcome email; set, this site names its own automation.
+        automationId: set("EMAILOCTOPUS_AUTOMATION_ID"),
+        // Optional. Falls back to SITE_LABEL, which is already set here.
+        brand: (process.env.EMAILOCTOPUS_BRAND || process.env.SITE_LABEL || "").trim() || null,
+        storing: set("EMAILOCTOPUS_API_KEY") && set("EMAILOCTOPUS_LIST_ID"),
+      },
       ready: set("ALERT_WEBHOOK_KEY") || set("NTFY_TOPIC"),
     },
     { headers: { "cache-control": "no-store" } }

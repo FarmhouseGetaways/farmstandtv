@@ -34,6 +34,9 @@
  * are still tellable apart.
  */
 
+import { configured, upsertContact, describe } from "./_lib/emailoctopus.mjs";
+import { contactFrom } from "./_lib/signup.mjs";
+
 const SITE = process.env.SITE_LABEL || "Farmstand.TV";
 
 /**
@@ -170,6 +173,59 @@ export default async (req) => {
   const data = payload?.data || {};
   if (!formName) return json({ ok: false, reason: "no form name" });
 
+
+/**
+ * Store the contact on the shared EmailOctopus list, tagged with the form it
+ * came through.
+ *
+ * ONE LIST, THREE BRANDS, TOLD APART BY TAGS. EmailOctopus bills per contact
+ * per list, so three lists would charge twice for anyone who signs up on two
+ * of the brands — and the people who want the farmstand map are exactly the
+ * people who would also want to hear about the barn.
+ *
+ * ⚠ STORED IS NOT THE SAME AS MAILABLE. This site's forms carry no opt-in tick,
+ * so every contact from here is written with status "unsubscribed": findable
+ * and filterable, never included in a campaign. signup.mjs owns that rule and
+ * emailoctopus.mjs makes sure the write can never unsubscribe somebody who had
+ * already signed up elsewhere.
+ *
+ * Runs AFTER the alert, and never throws — the submission is already saved and
+ * the visitor is already on the thanks page.
+ */
+async function toList(formName, data) {
+  const contact = contactFrom(formName, data);
+  if (!contact) return "no address";
+
+  const cfg = configured();
+  if (!cfg.ok) {
+    // Loud, because this is the state the sites sit in until the keys are
+    // pasted into Netlify, and an address lost in that window is lost for
+    // good. Printed so it can be added by hand.
+    console.error(
+      `[emailoctopus] NOT CONFIGURED (${cfg.missing.join(", ")}) — ` +
+      `${contact.email} from "${formName}" was saved to the Netlify inbox but NOT stored on the list`
+    );
+    return "not configured";
+  }
+
+  const res = await upsertContact(contact);
+  if (!res.ok) {
+    console.error(`[emailoctopus] failed for ${contact.email}: ${describe(res)}`);
+    return `failed ${res.status}`;
+  }
+
+  // What was WRITTEN, not what was asked for. Someone who subscribed months
+  // ago and has now used a form without ticking stays subscribed, and the log
+  // must say so rather than claiming they will never be mailed.
+  const wrote = res.statusWritten || contact.status;
+  const how = wrote === "subscribed"
+    ? (contact.consent ? "subscribed" : "stored — already subscribed, left as is")
+    : "stored (not opted in, will not be mailed)";
+  const note = res.degraded ? ` (tags dropped: ${res.degraded})` : "";
+  console.log(`[emailoctopus] ${how} ${contact.email} [${contact.tags.join(", ")}]${note}`);
+  return contact.consent ? "subscribed" : "stored";
+}
+
   const alert = summarise(formName, data);
 
   const [ntfy, webhook] = await Promise.all([
@@ -177,5 +233,7 @@ export default async (req) => {
     toWebhook(alert, formName, data).catch((e) => `error ${e.message}`),
   ]);
 
-  return json({ ok: true, form: formName, ntfy, webhook });
+  const list = await toList(formName, data).catch((e) => `error ${e.message}`);
+
+  return json({ ok: true, form: formName, ntfy, webhook, list });
 };
