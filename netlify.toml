@@ -8,3 +8,12 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# EmailOctopus setup and health check. Needs ?key=ADMIN_PASSWORD, and fails
+# closed when that is unset, so it is shut until it is deliberately opened.
+# There is no redirect for submission-created — Netlify calls that itself after
+# every verified submission, and nothing should reach it from outside.
+[[redirects]]
+  from = "/api/emailoctopus"
+  to = "/.netlify/functions/emailoctopus-status"
+  status = 200

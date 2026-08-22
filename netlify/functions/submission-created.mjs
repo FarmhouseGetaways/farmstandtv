@@ -34,7 +34,7 @@
  * are still tellable apart.
  */
 
-import { configured, upsertContact, describe } from "./_lib/emailoctopus.mjs";
+import { configured, upsertContact, queueAutomation, describe } from "./_lib/emailoctopus.mjs";
 import { contactFrom } from "./_lib/signup.mjs";
 
 const SITE = process.env.SITE_LABEL || "Farmstand.TV";
@@ -223,17 +223,35 @@ async function toList(formName, data) {
     : "stored (not opted in, will not be mailed)";
   const note = res.degraded ? ` (tags dropped: ${res.degraded})` : "";
   console.log(`[emailoctopus] ${how} ${contact.email} [${contact.tags.join(", ")}]${note}`);
-  return contact.consent ? "subscribed" : "stored";
+
+  // ⚠ A stored-only contact must never enter the welcome automation. They did
+  // not ask to hear from us; storing them is a filing decision, and starting an
+  // automation would turn it into a marketing one. This is the line that keeps
+  // "we kept your details" from becoming "we emailed you".
+  if (!contact.consent) return "stored";
+
+  // Separate from the upsert so a bad automation id costs the welcome email and
+  // not the subscription. The address is already on the list by here, and that
+  // is the part that cannot be redone.
+  const auto = await queueAutomation(contact.email, process.env.EMAILOCTOPUS_AUTOMATION_ID);
+  if (!auto.skipped && !auto.ok && !auto.alreadyQueued) {
+    console.error(`[emailoctopus] automation did not start for ${contact.email}: ${describe(auto)}`);
+    return "subscribed, automation failed";
+  }
+  return res.degraded ? "subscribed, tags dropped" : "subscribed";
 }
 
   const alert = summarise(formName, data);
 
-  const [ntfy, webhook] = await Promise.all([
+  // All three together. A signup should not wait on a push notification, and
+  // neither should fail because the other did — each swallows its own errors
+  // and reports a word, so this still answers 200 and Netlify does not retry a
+  // submission we have already acted on.
+  const [ntfy, webhook, list] = await Promise.all([
     toNtfy(alert).catch((e) => `error ${e.message}`),
     toWebhook(alert, formName, data).catch((e) => `error ${e.message}`),
+    toList(formName, data).catch((e) => `error ${e.message}`),
   ]);
-
-  const list = await toList(formName, data).catch((e) => `error ${e.message}`);
 
   return json({ ok: true, form: formName, ntfy, webhook, list });
 };

@@ -173,6 +173,29 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     </div>
   </section>
 
+  <!-- Channel 05 — the map by email. name="newsletter" is what routes this to
+       EmailOctopus; submission-created.mjs matches on exactly that name. -->
+  <section class="band paper chan" data-ch="05">
+    <div class="wrap centered rv">
+      <span class="kicker">The map, by email</span>
+      <h2 class="display">Know what is <em class="lit">ripe right now.</em></h2>
+      <p class="lede">We send the Ramona Farmstand Map, then a note when the
+        stands change over &mdash; when the citrus lands, when the honey is back,
+        when a new stand opens at the end of somebody&rsquo;s driveway.</p>
+      <form class="subform" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thanks">
+        <input type="hidden" name="form-name" value="newsletter">
+        <input type="hidden" name="source" value="fstv-home">
+        <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+        <label class="hp" for="su-fstv-email">Email address</label>
+        <input id="su-fstv-email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+        <button class="btn btn-go" type="submit">Send me the map</button>
+      </form>
+      <p class="fine centered">The Ramona Farmstand Map, free. One or two emails a month,
+        unsubscribe in a click, and we never sell your address.</p>
+    </div>
+  </section>
+
   <section class="band chan" data-ch="06">
     <div class="wrap centered rv">
       <span class="kicker">Also ours</span>
