@@ -34,6 +34,9 @@
  * are still tellable apart.
  */
 
+import { configured, upsertContact, queueAutomation, describe } from "./_lib/emailoctopus.mjs";
+import { contactFrom } from "./_lib/signup.mjs";
+
 const SITE = process.env.SITE_LABEL || "Farmstand.TV";
 
 /**
@@ -149,6 +152,55 @@ async function toWebhook(alert, formName, data) {
   return res.ok ? "sent" : `failed ${res.status}`;
 }
 
+/**
+ * The mailing list. A third channel alongside the two alerts above, and the
+ * only one a visitor ever notices — the alerts are for us, this is the thing
+ * they actually asked for.
+ *
+ * Runs alongside them rather than after: a signup should not wait on a push
+ * notification, and neither should fail because the other did. Like the other
+ * two it swallows everything and reports a word, so the handler still answers
+ * 200 and Netlify does not retry a submission we have already acted on.
+ *
+ * contactFrom() decides whether this submission belongs on the list at all —
+ * a newsletter signup does, an inquiry only if the opt-in box was ticked. It
+ * returns null otherwise and nothing is sent.
+ */
+async function toEmailOctopus(formName, data) {
+  const contact = contactFrom(formName, data);
+  if (!contact) return "not a signup";
+
+  const cfg = configured();
+  if (!cfg.ok) {
+    // Loud on purpose. This is the state between deploying the code and
+    // pasting the keys into Netlify, and a signup lost in that window is lost
+    // for good — so the address goes in the log where it can be added by hand.
+    console.error(
+      `[emailoctopus] NOT CONFIGURED (${cfg.missing.join(", ")}) — ` +
+      `signup from ${contact.email} is in the Netlify inbox but NOT on the list`
+    );
+    return "not configured";
+  }
+
+  const res = await upsertContact(contact);
+  if (!res.ok) {
+    console.error(`[emailoctopus] failed for ${contact.email}: ${describe(res)}`);
+    return `failed ${res.status}`;
+  }
+  const note = res.degraded ? ` (tags dropped: ${res.degraded})` : "";
+  console.log(`[emailoctopus] subscribed ${contact.email} [${contact.tags.join(", ")}]${note}`);
+
+  // Separate from the upsert so a bad automation id costs the welcome email
+  // and not the subscription. The address is already on the list by here, and
+  // that is the part that cannot be redone.
+  const auto = await queueAutomation(contact.email, process.env.EMAILOCTOPUS_AUTOMATION_ID);
+  if (!auto.skipped && !auto.ok && !auto.alreadyQueued) {
+    console.error(`[emailoctopus] automation did not start for ${contact.email}: ${describe(auto)}`);
+    return "subscribed, automation failed";
+  }
+  return res.degraded ? "subscribed, tags dropped" : "subscribed";
+}
+
 export default async (req) => {
   const json = (obj) =>
     new Response(JSON.stringify(obj), {
@@ -172,10 +224,11 @@ export default async (req) => {
 
   const alert = summarise(formName, data);
 
-  const [ntfy, webhook] = await Promise.all([
+  const [ntfy, webhook, list] = await Promise.all([
     toNtfy(alert).catch((e) => `error ${e.message}`),
     toWebhook(alert, formName, data).catch((e) => `error ${e.message}`),
+    toEmailOctopus(formName, data).catch((e) => `error ${e.message}`),
   ]);
 
-  return json({ ok: true, form: formName, ntfy, webhook });
+  return json({ ok: true, form: formName, ntfy, webhook, list });
 };
