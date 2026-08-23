@@ -152,28 +152,6 @@ async function toWebhook(alert, formName, data) {
   return res.ok ? "sent" : `failed ${res.status}`;
 }
 
-export default async (req) => {
-  const json = (obj) =>
-    new Response(JSON.stringify(obj), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
-
-  let payload;
-  try {
-    const body = await req.json();
-    // Netlify wraps the submission in `payload`. Accept a bare object too, so
-    // this can be exercised by hand with curl.
-    payload = body?.payload ?? body;
-  } catch {
-    return json({ ok: false, reason: "unreadable body" });
-  }
-
-  const formName = payload?.form_name || payload?.formName || "";
-  const data = payload?.data || {};
-  if (!formName) return json({ ok: false, reason: "no form name" });
-
-
 /**
  * Store the contact on the shared EmailOctopus list, tagged with the form it
  * came through.
@@ -241,6 +219,44 @@ async function toList(formName, data) {
   return res.degraded ? "subscribed, tags dropped" : "subscribed";
 }
 
+/**
+ * "sent" and "skipped" are the two routine outcomes and get an ordinary log
+ * line. Anything else — "failed 401", "error <message>" — means a channel
+ * that IS configured did not deliver, and that must never sit at the same
+ * log level as success. Before this, neither channel's outcome was logged at
+ * all: it went into the HTTP response body, which nobody reads — Netlify
+ * calls this function itself and discards what it returns. A channel broken
+ * in every context, not just preview, would have failed with no trace.
+ */
+function logChannel(name, result) {
+  if (result === "sent" || result === "skipped") {
+    console.log(`[alert] ${name}: ${result}`);
+  } else {
+    console.error(`[alert] ${name} FAILED: ${result}`);
+  }
+}
+
+export default async (req) => {
+  const json = (obj) =>
+    new Response(JSON.stringify(obj), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+
+  let payload;
+  try {
+    const body = await req.json();
+    // Netlify wraps the submission in `payload`. Accept a bare object too, so
+    // this can be exercised by hand with curl.
+    payload = body?.payload ?? body;
+  } catch {
+    return json({ ok: false, reason: "unreadable body" });
+  }
+
+  const formName = payload?.form_name || payload?.formName || "";
+  const data = payload?.data || {};
+  if (!formName) return json({ ok: false, reason: "no form name" });
+
   const alert = summarise(formName, data);
 
   // All three together. A signup should not wait on a push notification, and
@@ -252,6 +268,8 @@ async function toList(formName, data) {
     toWebhook(alert, formName, data).catch((e) => `error ${e.message}`),
     toList(formName, data).catch((e) => `error ${e.message}`),
   ]);
+  logChannel("ntfy", ntfy);
+  logChannel("webhook", webhook);
 
   return json({ ok: true, form: formName, ntfy, webhook, list });
 };
