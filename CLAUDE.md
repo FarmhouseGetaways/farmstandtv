@@ -58,7 +58,11 @@ usage — and live in no repository.
   `kml-to-data.py` — the `OURS` set near the top.
 - **`js/map.js` fetches everything it draws at runtime**, including the pin
   images. Nothing links to them, so no crawler or mirror will ever find them.
-- **The farmstand form** needs `data-netlify="true"` and
-  `netlify-honeypot="company"`.
+- **The farmstand form and the newsletter signup** need `data-netlify="true"`
+  and `netlify-honeypot="bot-field"`. Not `company` — that name is autofilled
+  by Chrome and Safari from a saved address, and this form asks for exactly
+  the fields (owner name, address, city, state, zip) that trigger it. A real
+  submission with autofill on would be silently discarded as spam. Renamed
+  estate-wide; see the root `farmhousegetaways/CLAUDE.md` for the incident.
 - `/images/logo-red.png` and `/images/logo-tan.png` are referenced somewhere
   and 404 — they belong to Mini Barn Market and pre-date the repo.
