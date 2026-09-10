@@ -1,14 +1,23 @@
 /* ==========================================================================
    The Ramona Farmstand Map — our own, on our own site.
 
-   Why this exists rather than a Google My Maps embed: My Maps has no API and
-   no automatic sync, so a stand you approve does not appear until somebody
-   opens My Maps and reimports a layer by hand. Reading the sheet directly
-   removes that step entirely — approve a row, refresh, the pin is there.
+   Until 10 Sep 2026 this fetched ONLY /data/stands.json, a file
+   tools/kml-to-data.py regenerates from Cory's Google My Map — meaning a
+   stand approved through farmhouse-admin never reached this site at all,
+   only the app's own map and (once that got wired up the same day)
+   farmhousegetaways.com's. Found live: Cory approved "Happy Homestead
+   Farmstand," it showed up everywhere else, not here. Now this reads the
+   SAME live endpoint those do first — https://farmhousegetawaysapp.netlify.app
+   /.netlify/functions/stands, CORS-enabled specifically for this — falling
+   back to the static file only if that's unreachable. kml-to-data.py and
+   the My Map remain a legitimate SEPARATE thing (landmarks, roads, the
+   basemap flourish) — this only changes where the STAND list itself comes
+   from.
 
    DATA
    Set SHEET_CSV below to a published Google Sheet and it becomes the source of
-   truth. Until then the map falls back to /data/stands.json.
+   truth, ahead of both the live endpoint and the fallback. Leave it empty
+   (the normal case) and LIVE is what actually renders.
 
    To publish the sheet:  File -> Share -> Publish to web -> pick the ForMap
    tab -> Comma-separated values (.csv) -> Publish. Paste that URL below.
@@ -20,6 +29,7 @@
    ========================================================================== */
 
 var SHEET_CSV = "";                      // <- paste the published CSV URL here
+var LIVE      = "https://farmhousegetawaysapp.netlify.app/.netlify/functions/stands";
 var FALLBACK  = "/data/stands.json";
 var LANDMARKS = "/data/landmarks.json";
 var ROADS     = "/data/roads.json";
@@ -412,15 +422,26 @@ function fail(msg) {
       .catch(function () { fail("The map could not load."); });
   }
 
+  function useLive() {
+    fetch(LIVE)
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) {
+        // An empty answer means something is wrong upstream, not that every
+        // farm stand closed. Fall back rather than show an empty map.
+        if (d.stands && d.stands.length) boot(d.stands); else useJSON();
+      })
+      .catch(useJSON);
+  }
+
   if (SHEET_CSV) {
     fetch(SHEET_CSV)
       .then(function (r) { if (!r.ok) throw 0; return r.text(); })
       .then(function (t) {
         var s = rowsToStands(parseCSV(t));
-        if (s.length) boot(s); else useJSON();   // empty sheet must not empty the map
+        if (s.length) boot(s); else useLive();   // empty sheet must not empty the map
       })
-      .catch(useJSON);
+      .catch(useLive);
   } else {
-    useJSON();
+    useLive();
   }
 })();

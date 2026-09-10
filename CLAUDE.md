@@ -49,13 +49,27 @@ usage — and live in no repository.
 
 ## This site specifically
 
-- **The map's data is generated.** `tools/kml-to-data.py` rebuilds
-  `data/stands.json`, `data/landmarks.json` and `data/roads.json` from
-  Cory's Google My Map ("Ramona Farm Stands - V6"), which is the source of
-  truth. Never hand-edit those files.
+- **The stand list itself is live, since 10 Sep 2026 — not generated.**
+  `js/map.js` reads `https://farmhousegetawaysapp.netlify.app/.netlify/functions/stands`
+  first — the same live, CORS-enabled endpoint the app's own Map tab and
+  farmhousegetaways.com's farmstand map page read — falling back to the
+  committed `data/stands.json` only if that's unreachable. A stand approved
+  through farmhouse-admin now shows up here within the endpoint's 60-second
+  cache window, same as everywhere else. **Before this**, this site only
+  ever read the static file, so an approval never reached it at all — found
+  live when Cory approved a stand and it appeared on the app and on
+  farmhousegetaways.com but not here. Do not revert `LIVE` back to
+  fallback-only; three separate farm-stand maps was the exact complaint
+  that led here (see farmhouse-app's own CLAUDE.md for the fuller history
+  of that fight).
+- **`tools/kml-to-data.py` still owns `data/landmarks.json` and
+  `data/roads.json`**, and remains `data/stands.json`'s fallback source —
+  regenerated from Cory's Google My Map ("Ramona Farm Stands - V6"). Never
+  hand-edit those files; the landmarks/roads layers are a deliberate,
+  separate flourish this live change doesn't touch.
 - **`"ours": true` marks our own stand.** `js/map.js` sorts it first and
-  tags it "Ours". Google My Maps has no such field, so it is applied by name in
-  `kml-to-data.py` — the `OURS` set near the top.
+  tags it "Ours" regardless of which source (live or fallback) supplied it —
+  the live endpoint already carries this flag from farmhouse-app's own data.
 - **`js/map.js` fetches everything it draws at runtime**, including the pin
   images. Nothing links to them, so no crawler or mirror will ever find them.
 - **The farmstand form and the newsletter signup** need `data-netlify="true"`
