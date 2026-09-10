@@ -40,7 +40,14 @@ var ZOOM   = 12;
 /* Basemaps. All free, all keyless, all requiring the attribution shown.
    The switcher on the page lets you compare them live — once you have picked
    one, set DEFAULT_STYLE to it and delete the rest if you want the control
-   gone. Past a few thousand views a month, move to a keyed provider. */
+   gone. Past a few thousand views a month, move to a keyed provider.
+
+   "Clean" (CARTO Voyager) used to be here and is GONE, found live 10 Sep
+   2026: CARTO now requires an API key for basemaps.cartocdn.com that this
+   site never had, so every "Clean" tile rendered as a giant "API key
+   required" watermark instead of a map. This affects every CARTO-hosted
+   raster style (Positron, Dark Matter, Voyager alike) — don't add any of
+   them back without actually confirming a live tile loads first. */
 var OSM_ATTR = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 var STYLES = {
   streets: {
@@ -54,13 +61,6 @@ var STYLES = {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
     attrib: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, USGS, NOAA', max: 19,
     // hill shading and green open space — reads like a paper trail map
-  },
-  clean: {
-    label: "Clean",
-    url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    attrib: OSM_ATTR + ' &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    max: 20, sub: "abcd",
-    // quiet and typographic — what the site shipped with
   },
   satellite: {
     label: "Satellite",
