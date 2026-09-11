@@ -416,6 +416,17 @@ em.lit { font-style: italic; color: var(--screen); }
 .fsrow:hover { background: rgba(247,244,234,.035); }
 .fsrow b { display: block; font-size: 1rem; font-weight: 700; }
 .fsrow-sells { display: block; font-size: .78rem; color: var(--screen); margin-top: .1rem; }
+/* the inventory fold — collapsed until asked for, so one wordy stand
+   does not push the next three off the screen */
+.fsrow-more { margin-top: .18rem; }
+.fsrow-more > summary {
+  display: list-item; list-style-position: inside; cursor: pointer;
+  font-size: .74rem; letter-spacing: .02em; color: #7E857A;
+}
+.fsrow-more > summary:hover,
+.fsrow-more[open] > summary { color: var(--screen); }
+.fsrow-more > summary:focus-visible { outline: 1px solid var(--screen); outline-offset: 2px; }
+.fsrow-more[open] > .fsrow-sells { margin-top: .28rem; }
 .fsrow-addr  { display: block; font-size: .82rem; color: #7E857A; margin-top: .1rem; }
 .fsrow-dir {
   flex: none; font-size: .62rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase;
@@ -423,7 +434,12 @@ em.lit { font-style: italic; color: var(--screen); }
   padding: .5rem .8rem; border-radius: 2px;
 }
 .fsrow-dir:hover { border-color: var(--screen); color: var(--screen); }
-@media (min-width: 60rem) { .fslist { columns: 2; column-gap: 3rem; } .fsrow { break-inside: avoid; } }
+/* a grid rather than CSS columns: multi-column rebalances the entire list
+   whenever a fold opens, so one click shuffled 18 of 31 rows the reader was
+   not even looking at. Grid only grows the row that was opened. */
+@media (min-width: 60rem) {
+  .fslist { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem; align-items: start; }
+}
 .fsmap-off {
   border: 1px dashed rgba(247,244,234,.2); border-radius: 3px; background: #10140F;
 }

@@ -368,8 +368,12 @@ function boot(stands) {
         (s.ours ? '<span class="fsrow-ours">Ours</span>' : "") + "</b>" +
         // hours first — it is what decides whether the drive is worth it today
         (s.hours ? '<span class="fsrow-hours">' + esc(s.hours) + "</span>" : "") +
-        (s.sells ? '<span class="fsrow-sells">' + esc(s.sells) + "</span>" : "") +
-        '<span class="fsrow-addr">' + esc(s.address) + "</span></div>" +
+        '<span class="fsrow-addr">' + esc(s.address) + "</span>" +
+        // the inventory is long enough to bury the next stand — fold it away,
+        // and keep it last so opening it pushes nothing else around inside the row
+        (s.sells ? '<details class="fsrow-more"><summary>Details / inventory</summary>' +
+                   '<span class="fsrow-sells">' + esc(s.sells) + "</span></details>" : "") +
+        "</div>" +
         '<a class="fsrow-dir" href="' + esc(directionsURL(s)) +
         '" target="_blank" rel="noopener">Directions</a></li>';
     }).join("");
@@ -378,6 +382,8 @@ function boot(stands) {
     Array.prototype.forEach.call(listEl.querySelectorAll(".fsrow"), function (el) {
       el.addEventListener("click", function (e) {
         if (e.target.classList.contains("fsrow-dir")) return;
+        // opening the fold must not also fly the map and scroll the row away
+        if (e.target.closest && e.target.closest(".fsrow-more")) return;
         var s = shown[+el.dataset.i];
         if (hasMap && s && s._marker) {
           map.flyTo([s.lat, s.lng], 15, { duration: .6 });
