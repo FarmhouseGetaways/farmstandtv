@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- Google tag (gtag.js) -->
+<script src="/js/attribution.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q1BMT5J9KE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -61,6 +62,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
       <div class="form-card">
         <form action='/thanks' method='POST' name='farmstand' data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="farmstand">
+        <input type="hidden" name="arrived-from" value=""><input type="hidden" name="first-visit-from" value=""><input type="hidden" name="arrived-landing" value=""><input type="hidden" name="arrived-referrer" value=""><input type="hidden" name="arrived-campaign" value=""><input type="hidden" name="arrived-click-id" value="">
           <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off" aria-hidden="true"></label></p>
 
           <p class="formnote">Everything marked <em>listed</em> appears publicly on the map. Your name does not.</p>

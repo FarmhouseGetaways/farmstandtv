@@ -101,6 +101,9 @@ function summarise(formName, data) {
   for (const [key, value] of Object.entries(data)) {
     if (INTERESTING.includes(key) || JOINED.includes(key)) continue;
     if (key === "bot-field" || key === "company" || key === "form-name") continue;
+    // Attribution fields ride along on every form (js/attribution.js); only the
+    // one-line "arrived-from" belongs on a lock screen.
+    if (/^(arrived-|first-visit-)/.test(key) && key !== "arrived-from") continue;
     const v = (value || "").toString().trim();
     if (v) lines.push(`${label(key)}: ${v}`);
   }
