@@ -33,9 +33,13 @@
     try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return ""; }
   }
 
+  /* Google Ads sends the campaign as a number (the account-level URL suffix uses
+     {campaignid}); name the ones we run so the inbox reads in words. */
+  var CAMPAIGNS = { "24234967889": "Search - Group Getaways - Fall 2026" };
+
   /* One readable line for "how they got here". */
   function label(t) {
-    if (t.click) return "Google Ads" + (t.campaign ? " - " + t.campaign : "") + (t.term ? " - keyword: " + t.term : "");
+    if (t.click) return "Google Ads" + (t.campaign ? " - " + (CAMPAIGNS[t.campaign] || t.campaign) : "") + (t.term ? " - keyword: " + t.term : "");
     if (t.fb) return "Facebook / Instagram ad";
     if (t.src) return t.src + (t.medium ? " / " + t.medium : "") + (t.campaign ? " - " + t.campaign : "");
     var h = t.ref;
