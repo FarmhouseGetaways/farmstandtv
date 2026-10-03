@@ -139,7 +139,8 @@ function rowsToStands(rows) {
   var idx = function (n) { return head.indexOf(n); };
   var col = { name: idx("name"), address: idx("address"), lat: idx("lat"),
               lng: idx("lng"), hours: idx("hours"), sells: idx("sells"),
-              phone: idx("phone"), email: idx("email"), url: idx("url") };
+              phone: idx("phone"), email: idx("email"), url: idx("url"),
+              instagram: idx("instagram"), facebook: idx("facebook") };
   // tolerate the alternative spellings people actually use
   if (col.lng < 0) col.lng = idx("long");
   if (col.lng < 0) col.lng = idx("longitude");
@@ -153,6 +154,7 @@ function rowsToStands(rows) {
       lat: isFinite(lat) ? lat : null, lng: isFinite(lng) ? lng : null,
       hours: get("hours"), sells: get("sells"),
       phone: get("phone"), email: get("email"), url: get("url"),
+      instagram: get("instagram"), facebook: get("facebook"),
       tags: []
     };
   }).filter(function (s) { return s.name; });
@@ -322,10 +324,14 @@ function boot(stands) {
     if (s.address) bits.push('<p class="pop-addr">' + esc(s.address) + "</p>");
     bits.push('<p class="pop-links"><a href="' + esc(directionsURL(s)) +
               '" target="_blank" rel="noopener">Directions</a>');
-    if (s.url) {
-      var u = s.url.indexOf("http") === 0 ? s.url : "https://" + s.url;
-      bits.push('<a href="' + esc(u) + '" target="_blank" rel="noopener">Website</a>');
-    }
+    // Website, Instagram and Facebook are separate links since 2 Oct 2026;
+    // the feed sorts whatever owners typed into the right one.
+    [["url", "Website"], ["instagram", "Instagram"], ["facebook", "Facebook"]].forEach(function (l) {
+      var v = s[l[0]];
+      if (!v) return;
+      var u = v.indexOf("http") === 0 ? v : "https://" + v;
+      bits.push('<a href="' + esc(u) + '" target="_blank" rel="noopener">' + l[1] + '</a>');
+    });
     if (s.phone) bits.push('<a href="tel:' + esc(s.phone.replace(/[^0-9+]/g, "")) + '">Call</a>');
     bits.push("</p></div>");
     return bits.join("");

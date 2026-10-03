@@ -90,7 +90,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
             <div class="field"><label for="zp">Zip <span class="listed">listed</span></label><input id="zp" name="zip" type="text" autocomplete="postal-code" value="92065" required></div>
           </div>
 
-          <div class="field"><label for="url">Website or Instagram</label><input id="url" name="url" type="text" placeholder="Optional"></div>
+          <div class="field"><label for="url">Website</label><input id="url" name="url" type="text" inputmode="url" placeholder="Optional, e.g. yourfarm.com"></div>
+          <div class="field"><label for="ig">Instagram</label><input id="ig" name="instagram" type="text" autocapitalize="off" placeholder="Optional, e.g. @yourfarm"></div>
+          <div class="field"><label for="fb">Facebook</label><input id="fb" name="facebook" type="text" autocapitalize="off" placeholder="Optional, e.g. facebook.com/yourfarm"></div>
 
           <button class="btn btn-go" type="submit">Submit your farm stand</button>
           <p class="fine">We read every one and we visit before we list. The address is what places your pin, so please make it the one a car should drive to &mdash; not a mailing address.</p>
