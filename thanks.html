@@ -150,7 +150,7 @@ function ytFallback(img, loaded) {
       else io.observe(els[i]);
     }
   } catch (err) {
-    document.documentElement.className = document.documentElement.className.replace(/js/, '');
+    document.documentElement.className = document.documentElement.className.replace(/\bjs\b/, '');
   }
 })();
 </script>
