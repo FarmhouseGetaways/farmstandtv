@@ -32,6 +32,19 @@
 if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
 </script>
 <link rel="stylesheet" href="/css/site.css?v=612ae8b3">
+<style>
+/* The new-or-update choice. Page-local so site.css keeps its cache hash. */
+.mode { border: 0; padding: 0; margin: 0 0 1.4rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+.mode legend { font-size: .68rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .6rem; padding: 0; }
+.mode label { display: flex; align-items: center; gap: .5rem; padding: .7rem 1.1rem; border: 1px solid #D5D0BE; border-radius: 999px; cursor: pointer; font-size: .95rem; }
+.mode label:has(input:checked) { border-color: var(--screen-dk); background: #DCEEDD; color: #14501B; font-weight: 700; }
+.mode input { accent-color: var(--screen-dk); margin: 0; }
+.field select { font: inherit; font-size: 1rem; padding: .85rem 1rem; width: 100%; border: 1px solid #D5D0BE; border-radius: 2px; background: #fff; color: var(--ink); }
+.field select:focus { outline: none; border-color: var(--screen-dk); box-shadow: 0 0 0 3px rgba(30,122,40,.16); }
+.upd-note { margin-top: .2rem; }
+#upd-pick { margin-bottom: 1.6rem; padding-bottom: 1.2rem; border-bottom: 1px solid #E4DFCD; }
+#upd-pick[hidden] { display: none; }
+</style>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -67,6 +80,25 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
 
           <p class="formnote">Everything marked <em>listed</em> appears publicly on the map. Your name does not.</p>
 
+          <!-- Update path. Picking a stand sends `updates` (its name on the map);
+               farmhouse-admin shows the card as an update to that stand, checks
+               the email/phone against what is on file, and Replace overwrites
+               the listing. The select is disabled for a new stand so it never
+               submits. Both fields must stay in the static HTML: Netlify only
+               records fields it found here at deploy. -->
+          <fieldset class="mode">
+            <legend>Is your stand already on the map?</legend>
+            <label><input type="radio" name="submission-type" value="new" checked> No, add my stand</label>
+            <label><input type="radio" name="submission-type" value="update"> Yes, update my listing</label>
+          </fieldset>
+          <div class="field" id="upd-pick" hidden>
+            <label for="upd">Which stand is yours?</label>
+            <select id="upd" name="updates" disabled>
+              <option value="">Choose your stand&hellip;</option>
+            </select>
+            <p class="fine upd-note">Fill in everything below the way it should read now. Your update replaces the current listing once we confirm it is you, so use the email or phone number we already have for your stand.</p>
+          </div>
+
           <div class="field-pair">
             <div class="field"><label for="fn">Owner first name <span class="not-listed">not listed</span></label><input id="fn" name="owner-first" type="text" autocomplete="given-name" required></div>
             <div class="field"><label for="ln">Owner last name <span class="not-listed">not listed</span></label><input id="ln" name="owner-last" type="text" autocomplete="family-name"></div>
@@ -94,7 +126,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
           <div class="field"><label for="ig">Instagram</label><input id="ig" name="instagram" type="text" autocapitalize="off" placeholder="Optional, e.g. @yourfarm"></div>
           <div class="field"><label for="fb">Facebook</label><input id="fb" name="facebook" type="text" autocapitalize="off" placeholder="Optional, e.g. facebook.com/yourfarm"></div>
 
-          <button class="btn btn-go" type="submit">Submit your farm stand</button>
+          <button class="btn btn-go" type="submit" id="go">Submit your farm stand</button>
           <p class="fine">We read every one and we visit before we list. The address is what places your pin, so please make it the one a car should drive to &mdash; not a mailing address.</p>
         </form>
       </div>
@@ -219,6 +251,74 @@ function ytFallback(img, loaded) {
   } catch (err) {
     document.documentElement.className = document.documentElement.className.replace(/\bjs\b/, '');
   }
+})();
+</script>
+<script>
+// "Yes, update my listing": list the stands on the map, and fill the form from
+// the one picked so the owner edits what is there instead of retyping it.
+(function () {
+  var LIVE = "https://farmhousegetawaysapp.netlify.app/.netlify/functions/stands";
+  var FALLBACK = "/data/stands.json";
+  var form = document.querySelector('form[name="farmstand"]');
+  var pick = document.getElementById("upd-pick");
+  var sel = document.getElementById("upd");
+  var go = document.getElementById("go");
+  var stands = null;
+
+  function load() {
+    if (stands) return;
+    stands = [];
+    var get = function (u) { return fetch(u).then(function (r) { return r.json(); }); };
+    get(LIVE).catch(function () { return get(FALLBACK); }).then(function (d) {
+      stands = (d && d.stands || []).filter(function (s) { return s && s.name; })
+        .sort(function (a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+      stands.forEach(function (s) {
+        var o = document.createElement("option");
+        o.value = s.name;
+        o.textContent = s.name;
+        sel.appendChild(o);
+      });
+    }).catch(function () { stands = null; });
+  }
+
+  function set(name, v) {
+    var el = form.elements[name];
+    if (el) el.value = v || "";
+  }
+
+  // "17111 Whirlwind Ln, Ramona, CA 92065" -> street, city, state, zip.
+  // Anything that does not split cleanly leaves the street for the owner.
+  // Several on the map have no comma after the street ("18585 Oak Ridge Ln
+  // Ramona, CA 92065"), so the second pattern splits at the street suffix.
+  function fillAddress(a) {
+    a = String(a || "").trim();
+    var m = /^(.+?),\s*([^,]+?),\s*([A-Za-z]{2})\s*(\d{5})?$/.exec(a) ||
+      /^(.*?\b(?:ln|lane|rd|road|st|street|ave|avenue|dr|drive|way|hwy|highway|trl|trail|ct|court|pl|place|blvd|cir|circle|pkwy|ter|terrace)\.?(?:\s+\d+\b)?)\s+([^,]+?),\s*([A-Za-z]{2})\s*(\d{5})?$/i.exec(a);
+    if (!m) { set("address-1", ""); return; }
+    set("address-1", m[1]); set("address-2", "");
+    set("city", m[2]); set("state", m[3].toUpperCase());
+    if (m[4]) set("zip", m[4]);
+  }
+
+  sel.addEventListener("change", function () {
+    var s = (stands || []).filter(function (x) { return x.name === sel.value; })[0];
+    if (!s) return;
+    set("stand-name", s.name);
+    set("hours", s.hours); set("sells", s.sells);
+    set("url", s.url); set("instagram", s.instagram); set("facebook", s.facebook);
+    if (s.phone) set("phone", s.phone);
+    fillAddress(s.address);
+  });
+
+  form.addEventListener("change", function (e) {
+    if (e.target.name !== "submission-type") return;
+    var upd = e.target.value === "update";
+    pick.hidden = !upd;
+    sel.disabled = !upd;
+    sel.required = upd;
+    go.textContent = upd ? "Send the update" : "Submit your farm stand";
+    if (upd) load();
+  });
 })();
 </script>
 </body>

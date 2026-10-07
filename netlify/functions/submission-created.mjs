@@ -54,7 +54,7 @@ const LABELS = {
   "stand-name": "Stand", email: "Email", phone: "Phone",
   address: "Address", "address-1": "Address", "address-2": "Address line 2",
   city: "City", state: "State", zip: "Zip", url: "Website",
-  hours: "Hours", sells: "Sells", message: "Message",
+  hours: "Hours", sells: "Sells", message: "Message", updates: "Updates",
   guests: "Guests", dates: "Dates", nights: "Nights",
 };
 
@@ -74,6 +74,8 @@ function summarise(formName, data) {
     "group-inquiry": "Group Inquiry",
     newsletter: "Newsletter Signup",
   }[formName] || formName;
+  // An owner updating a stand already on the map (submit.html's update choice).
+  const update = formName === "farmstand" && (data.updates || "").toString().trim();
 
   // A person is one line. Split into "Name: Marguerite" and "Surname: Ellis"
   // a lock screen reads like a spreadsheet, and it costs a row of the few a
@@ -100,7 +102,7 @@ function summarise(formName, data) {
   // a form gains a field far more often than this file gets updated.
   for (const [key, value] of Object.entries(data)) {
     if (INTERESTING.includes(key) || JOINED.includes(key)) continue;
-    if (key === "bot-field" || key === "company" || key === "form-name") continue;
+    if (key === "bot-field" || key === "company" || key === "form-name" || key === "submission-type") continue;
     // Attribution fields ride along on every form (js/attribution.js); only the
     // one-line "arrived-from" belongs on a lock screen.
     if (/^(arrived-|first-visit-)/.test(key) && key !== "arrived-from") continue;
@@ -113,7 +115,7 @@ function summarise(formName, data) {
   // most legible half on punctuation and the sender's name — and the name is
   // the first line of the body anyway.
   return {
-    title: `${SITE} ${pretty}`,
+    title: update ? `${SITE} Farm Stand Update` : `${SITE} ${pretty}`,
     body: lines.join("\n").slice(0, 1200) || "No details were filled in.",
   };
 }
