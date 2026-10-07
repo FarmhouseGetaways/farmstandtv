@@ -310,6 +310,14 @@ function ytFallback(img, loaded) {
     fillAddress(s.address);
   });
 
+  // thanks.html words its confirmation for an update when this is set.
+  form.addEventListener("submit", function () {
+    try {
+      if (!sel.disabled && sel.value) sessionStorage.setItem("fstv-update", "1");
+      else sessionStorage.removeItem("fstv-update");
+    } catch (err) { /* storage blocked: the thanks page shows its general wording */ }
+  });
+
   form.addEventListener("change", function (e) {
     if (e.target.name !== "submission-type") return;
     var upd = e.target.value === "update";

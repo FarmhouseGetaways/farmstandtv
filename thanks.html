@@ -53,10 +53,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
   <div class="wrap centered">
     <span class="kicker">Got it</span>
     <h1 class="mega" style="max-width:15ch;margin-inline:auto;">We will take it <em class="lit">from here.</em></h1>
-    <p class="lede">Someone reads every submission, and we will come back to you.
+    <p class="lede" id="t-next">Someone reads every submission, and we will come back to you.
       Getting a stand onto the digital map usually takes a day or two &mdash; we
       like to come by and see a place before it goes on.</p>
-    <p class="lede">If you are here in Ramona, you go on the illustrated map as
+    <p class="lede" id="t-paper">If you are here in Ramona, you go on the illustrated map as
       well. That one is redrawn every quarter, starting at the new year, so
       depending on when you catch us it may be a little while before you see
       yourself on paper.</p>
@@ -152,6 +152,19 @@ function ytFallback(img, loaded) {
   } catch (err) {
     document.documentElement.className = document.documentElement.className.replace(/\bjs\b/, '');
   }
+})();
+</script>
+<script>
+// submit.html leaves this flag when the owner chose "update my listing".
+(function () {
+  try {
+    if (sessionStorage.getItem("fstv-update") !== "1") return;
+    sessionStorage.removeItem("fstv-update");
+    document.getElementById("t-next").textContent =
+      "Someone reads every update. Once we confirm it is you, it replaces your listing on the digital map. If anything does not match what we have on file, we will call the stand first.";
+    document.getElementById("t-paper").textContent =
+      "The illustrated map is redrawn every quarter, starting at the new year, so changes reach the paper version at the next redraw.";
+  } catch (err) { /* storage blocked: the general wording still holds */ }
 })();
 </script>
 </body>
