@@ -42,7 +42,7 @@
     if (t.click) return "Google Ads" + (t.campaign ? " - " + (CAMPAIGNS[t.campaign] || t.campaign) : "") + (t.term ? " - keyword: " + t.term : "");
     /* Facebook stamps fbclid on every outbound link, organic posts included,
        so it only means an ad when our own utm_medium says paid. */
-    if (t.fb) return "Facebook / Instagram" + (/^(paid|cpc|ads?)$/i.test(t.medium) ? " ad" : "");
+    if (t.fb) return "Facebook / Instagram" + (/paid|cpc|^ads?$/i.test(t.medium) ? " ad" : "");
     if (t.src) return t.src + (t.medium ? " / " + t.medium : "") + (t.campaign ? " - " + t.campaign : "");
     var h = t.ref;
     if (!h) return "Direct or unknown";
