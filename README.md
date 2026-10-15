@@ -50,3 +50,12 @@ Netlify → Forms. A confirmation page proves nothing.
 
 `robots.txt` says `Disallow: /` while farmstandtv.com still points elsewhere.
 Change it to `Allow: /` the day the domain points here.
+
+## Scroll line
+
+`js/scroll-progress.js` draws the thin line across the top of the window that fills as a long page is scrolled
+(Cory, 14 Oct 2026). It shows only on pages at least two screens tall, stays off inside Facebook's
+and Instagram's own browsers (they draw their own line), and picks dark or light from whatever is at
+the top of the window. Each page loads it with one `<script ... defer>` line before
+`</head>`. The file is a copy: the master and the installer that adds it to every site are in
+`reports/scroll-progress/` in the projects folder. Change it there and re-run `install.py`.
