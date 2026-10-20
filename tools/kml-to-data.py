@@ -31,6 +31,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # which is exactly what the owner noticed on 20 Aug 2026.
 OURS = {"mini barn market"}
 
+# Hours that win over the My Map note. The county holds Mini Barn Market to
+# sunup-to-sundown hours (Oct 2026); the My Map note still said "24-7, 365".
+HOURS = {"mini barn market": "Sunup to Sundown, every day of the year"}
+
 # The My Map has no icon field, so landmark glyphs are chosen here by name.
 # GLYPH in js/map.js defines what is available: peak, park, water, museum,
 # castle, wildlife, air, sign, place. Anything unlisted falls back to "place".
@@ -117,6 +121,8 @@ def build_stands(folder):
             value = fields.get(key, "").strip()
             if value:
                 stand[target] = value
+        if name.strip().lower() in HOURS:
+            stand["hours"] = HOURS[name.strip().lower()]
         stands.append(stand)
     stands.sort(key=lambda s: s["name"].lower())
     return stands
