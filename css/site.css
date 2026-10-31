@@ -355,6 +355,80 @@ em.lit { font-style: italic; color: var(--screen); }
 }
 
 /* ==========================================================================
+   Illustrated printable map — thumbnail above the driving map.
+   The picture is the same file as the full-bleed version further down.
+   The link is the print PDF, the one that goes in the glovebox.
+   ========================================================================== */
+.print-lead { padding: 0 0 clamp(.25rem, 1vw, .6rem); }
+.print-lead-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--bone);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 36px 80px -48px rgba(0,0,0,.95);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.print-lead-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 44px 90px -40px rgba(0,0,0,.95), 0 0 0 1px var(--screen);
+}
+.print-lead-card:focus-visible {
+  outline: 3px solid var(--screen);
+  outline-offset: 4px;
+}
+.print-lead-frame {
+  display: block;
+  background: #16331c;
+  line-height: 0;
+  overflow: hidden;
+}
+/* The whole poster, never a crop — the title and the directory are part of
+   the drawing, and a sliced thumbnail stops looking like the map. */
+.print-lead-frame img {
+  width: 100%;
+  height: auto;
+  transition: transform .5s cubic-bezier(.2,.7,.3,1);
+}
+.print-lead-card:hover .print-lead-frame img,
+.print-lead-card:focus-visible .print-lead-frame img { transform: scale(1.02); }
+.print-lead-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.15rem, 2.5vw, 1.85rem) clamp(1.2rem, 2.8vw, 2.1rem);
+}
+.print-lead-copy .kicker { color: var(--screen-dk); margin-bottom: .45rem; }
+.print-lead-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(1.65rem, 3vw, 2.45rem);
+  line-height: 1.06;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.print-lead-title::after { content: " \2192"; color: var(--screen-dk); }
+.print-lead-note {
+  margin-top: .7rem;
+  font-size: .95rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  max-width: 36ch;
+}
+@media (min-width: 64rem) {
+  .print-lead-card { grid-template-columns: minmax(0, 1.35fr) minmax(18rem, .72fr); align-items: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .print-lead-card, .print-lead-frame img { transition: none; }
+  .print-lead-card:hover { transform: none; }
+  .print-lead-card:hover .print-lead-frame img,
+  .print-lead-card:focus-visible .print-lead-frame img { transform: none; }
+}
+
+/* ==========================================================================
    THE MAP — ours, on our own site (Leaflet)
    ========================================================================== */
 .fsmap-wrap { position: relative; }
