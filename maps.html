@@ -31,7 +31,7 @@
 // leaves every section plainly visible rather than blank.
 if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
 </script>
-<link rel="stylesheet" href="/css/site.css?v=612ae8b3">
+<link rel="stylesheet" href="/css/site.css?v=7c3e91a4">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="/js/scroll-progress.js" defer></script>
 </head>
@@ -52,7 +52,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
 
 <main id="main">
 
-  <section class="band-tight chan" data-ch="01" style="padding-top:clamp(3rem,7vw,5rem);">
+  <section class="band-tight chan" data-ch="01" style="padding-top:clamp(3rem,7vw,5rem);padding-bottom:clamp(1.15rem,2.4vw,1.7rem);">
     <div class="wrap centered">
       <span class="kicker">Free &middot; no sign-up &middot; ours</span>
       <h1 class="mega" style="max-width:13ch;margin-inline:auto;">The Ramona Farmstand Map</h1>
@@ -60,9 +60,27 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     </div>
   </section>
 
+  <!-- The hand-drawn map, up top so it is not buried under the driving map.
+       Same asset as the full version further down: the print PDF. -->
+  <section class="print-lead" aria-label="Illustrated printable map">
+    <div class="wrap">
+      <a class="print-lead-card" href="/downloads/Ramona-Farmstand-Map.pdf">
+        <span class="print-lead-frame">
+          <img src="/images/ramona-farmstand-map.jpg" width="2400" height="1855"
+               alt="The hand-illustrated Ramona Farmstand Map.">
+        </span>
+        <span class="print-lead-copy">
+          <span class="kicker">Drawn, not generated</span>
+          <span class="print-lead-title">Click here for the illustrated printable map</span>
+          <span class="print-lead-note">Version 36, and counting. The one people put on the refrigerator &mdash; 11 &times; 8.5 inches, free.</span>
+        </span>
+      </a>
+    </div>
+  </section>
+
   <!-- Our own map. Reads the sheet directly, so an approved stand appears
        without anyone reimporting anything. See js/map.js. -->
-  <section class="band-tight">
+  <section class="band-tight" style="padding-top:clamp(1.35rem,2.8vw,2.15rem);">
     <div class="wrap">
       <div class="fscontrols">
         <!-- Filter chips are off until the sells/category data is curated.
