@@ -6,7 +6,7 @@ var SHELL = [
   "/crawl2026/map",
   "/crawl2026-preview-h4k9mq2x/",
   "/crawl2026-preview-h4k9mq2x/map",
-  "/css/crawl.css?v=20261127k",
+  "/css/crawl.css?v=20261127l",
   "/js/crawl.js",
   "/js/crawl-tour.js",
   "/js/crawl-logic.js",
