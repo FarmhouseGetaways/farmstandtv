@@ -782,6 +782,15 @@
         ? (nVis === 1 ? "1 done" : nVis + " done")
         : "";
     }
+    var dots = document.getElementById("stamp-dots");
+    var cardLabel = document.getElementById("stamp-card-label");
+    if (dots) {
+      var marks = "";
+      var d;
+      for (d = 0; d < nVis; d++) marks += "<i></i>";
+      dots.innerHTML = marks;
+    }
+    if (cardLabel) cardLabel.textContent = nVis ? "Your stamps" : "Collect a stamp at every stop.";
 
     if (el.idle) {
       if (!state.stands.length) {
@@ -1159,10 +1168,11 @@
     refreshRoute();
     openHash();
     maybeAutoResume();
-    /* ?start=1 comes from the landing button. Focus the control without
-       scrolling the map off the screen — the button already sits under it. */
-    if (el.start && /[?&]start=1(?:&|$)/.test(location.search)) {
-      try { el.start.focus({ preventScroll: true }); } catch (e) { /* older browsers */ }
+    /* ?start=1 comes from the big button. Begin at once so they are not
+       asked to tap Start a second time. */
+    if (/[?&]start=1(?:&|$)/.test(location.search)) {
+      if (!complete()) startWatch();
+      try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) { /* keep the query */ }
     }
   }
 

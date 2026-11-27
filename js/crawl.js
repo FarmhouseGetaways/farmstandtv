@@ -50,6 +50,21 @@
       });
     }
     if (open) {
+      document.body.classList.add("has-tour-go");
+      var road = document.querySelector(".road");
+      if (road && !road.getAttribute("data-ready")) {
+        road.setAttribute("data-ready", "1");
+        var light = function () { road.classList.add("lit"); };
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) light();
+        else {
+          var io = new IntersectionObserver(function (ents) {
+            ents.forEach(function (e) {
+              if (e.isIntersecting) { light(); io.disconnect(); }
+            });
+          }, { threshold: 0.3 });
+          io.observe(road);
+        }
+      }
       var lede = document.getElementById("crawl-lede");
       if (lede) lede.textContent = "The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit Ramona’s farm stands, all decorated for the holidays and stocked with local goodies.";
       var tour = document.getElementById("tour-link");
