@@ -870,8 +870,7 @@
         el.idle.textContent = "You’ve visited every stand.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "Tap Start the tour. The drive starts at " +
-          (state.original.length ? shown(state.original[0]) : "the first stop") + ".";
+        el.idle.textContent = "The tour starts at Mini Barn Market.";
         show(el.idle, true);
       } else {
         show(el.idle, false);
@@ -1247,7 +1246,10 @@
     /* ?start=1 comes from the big button. Begin at once so they are not
        asked to tap Start a second time. */
     if (/[?&]start=1(?:&|$)/.test(location.search)) {
-      if (!complete()) startWatch();
+      if (!complete()) {
+        if (visitedCount() === 0) state.stands = state.original.slice();
+        startWatch();
+      }
       try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) { /* keep the query */ }
     }
   }
