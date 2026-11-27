@@ -66,7 +66,7 @@
         }
       }
       var lede = document.getElementById("crawl-lede");
-      if (lede) lede.textContent = "The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit Ramona’s farm stands, all decorated for the holidays and stocked with local goodies.";
+      if (lede) lede.textContent = "The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit Ramona’s farm stands, all decorated for the holidays and stocked with local goodies. The tour starts at Mini Barn Market.";
       var tour = document.getElementById("tour-link");
       if (tour && base) tour.href = base + "/map?start=1";
     }
