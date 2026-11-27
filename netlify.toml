@@ -17,3 +17,15 @@
   from = "/api/emailoctopus"
   to = "/.netlify/functions/emailoctopus-status"
   status = 200
+
+# Christmas Crawl. Pretty URLs already serve crawl2026/index.html at
+# /crawl2026; these keep /crawl2026 and /crawl2026/map explicit.
+[[redirects]]
+  from = "/crawl2026/map"
+  to = "/crawl2026/map.html"
+  status = 200
+
+[[redirects]]
+  from = "/crawl2026"
+  to = "/crawl2026/index.html"
+  status = 200

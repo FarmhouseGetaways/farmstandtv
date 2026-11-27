@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script src="/js/attribution.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q1BMT5J9KE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Q1BMT5J9KE');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Farmstand Christmas Crawl | Farmstand.TV</title>
+<meta name="description" content="A holiday drive between Ramona farm stands, with a stamp on your phone at each one. The date and the final list of stands are not set yet.">
+<link rel="canonical" href="https://farmstandtv.com/crawl2026">
+<meta property="og:title" content="The Farmstand Christmas Crawl | Farmstand.TV">
+<meta property="og:description" content="A holiday drive between Ramona farm stands, with a stamp on your phone at each one. The date and the final list of stands are not set yet.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://farmstandtv.com/images/ramona-farmstand-map.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<meta name="theme-color" content="#14281C">
+<script>
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
+</script>
+<link rel="stylesheet" href="/css/site.css?v=20261127b">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127a">
+<script src="/js/scroll-progress.js" defer></script>
+</head>
+<body class="crawl">
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <a class="wordmark" href="/"><img src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV"></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/maps">The Map</a>
+      <a href="/crawl2026" aria-current="page">The Crawl</a>
+      <a href="/tours">Watch</a>
+      <a href="/submit">Add a Stand</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="crawl-hero">
+    <div class="lights" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="snow" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="crawl-hero-inner">
+      <span class="kicker">Ramona &middot; a holiday drive</span>
+      <h1 class="mega crawl-title">The Farmstand <em class="lit">Christmas Crawl</em></h1>
+      <p class="lede">A loop of farm stands you drive in an afternoon, with a stamp on your phone at each one. Cory and Carissa are still choosing the day and the stands. Nothing on this page pretends otherwise.</p>
+      <p class="ph-flag" data-ph>Placeholder lineup. The date and the final list of stands are not set.</p>
+      <div class="tbd">
+        <div><span>Date</span><strong id="tbd-date">Not set</strong></div>
+        <div><span>Time</span><strong id="tbd-time">Not set</strong></div>
+        <div><span>Meeting place</span><strong id="tbd-start">Not set</strong></div>
+        <div><span>Prizes</span><strong id="tbd-prizes">None announced</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band paper chan" data-ch="01">
+    <div class="wrap rv">
+      <span class="kicker">On the day</span>
+      <h2 class="display">How the crawl <em class="lit">works.</em></h2>
+      <ol class="steps">
+        <li><b>Open the crawl map.</b> It shows only the stands on this list, from the same feed as the Ramona farmstand map. The rest of the plateau stays on <a href="/maps">the main map</a>.</li>
+        <li><b>Start the tour.</b> The page asks for your location and puts you on the map, with the direction you are heading. It suggests an order from where you are. To choose your own, drag a stop, use the up and down buttons, or tap the stands in the order you want.</li>
+        <li><b>Drive the leg.</b> You get the next stand, how far it is, a rough time, and a line on the map. About a hundred yards out, that stand is stamped and the next one comes up. The stamps stay on this phone if you leave and come back. While the tour is running, the page tries to keep the screen awake.</li>
+        <li><b>For the turns, use the maps app.</b> One tap opens the current leg in Google Maps or Apple Maps. If the road line on our map does not load, you still get a straight line, and that same tap.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band-tight paper-2 chan" data-ch="02">
+    <div class="wrap rv">
+      <span class="kicker">The list</span>
+      <h2 class="display">Stands on <em class="lit">this page.</em></h2>
+      <p class="lede" id="lineup-note">This list is a placeholder, picked because the stands sit near each other on the west side of Ramona, so the route can be driven and tried. Every card is filled from the farmstand map &mdash; the name, the address, the hours &mdash; and nothing is added. When the real lineup is ready, it gets typed into one file, <b>data/crawl2026.json</b>.</p>
+      <p id="crawl-count" class="crawl-count">Loading the stands&hellip;</p>
+      <p id="crawl-missing" class="crawl-missing" hidden></p>
+      <noscript><p>The stand list needs JavaScript. The full map is at <a href="/maps">/maps</a>.</p></noscript>
+      <ul id="crawl-stands" class="crawl-cards"></ul>
+    </div>
+  </section>
+
+  <section class="band crawl-cta chan" data-ch="03">
+    <div class="wrap centered rv">
+      <span class="kicker">On your phone</span>
+      <h2 class="display">Start the live tour.</h2>
+      <p class="lede">It runs in the browser. No account. Leave and come back, and this phone still has your stamps and your order. The page will ask to use your location.</p>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn-go" href="/crawl2026/map?start=1">Start the live tour</a>
+        <a class="btn btn-line" href="/maps">The full Ramona map</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <img class="foot-logo" src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV">
+        <p style="margin:0 0 .7rem;">A show about the farm stands of Southern California. Made in Ramona by Cory &amp; Carissa.</p>
+        <p style="margin:0;"><a href="mailto:farmstandtv@gmail.com">farmstandtv@gmail.com</a></p>
+      </div>
+      <div>
+        <h2>The map</h2>
+        <ul>
+          <li><a href="/maps">The Ramona Farmstand Map</a></li>
+          <li><a href="/crawl2026">Christmas Crawl</a></li>
+          <li><a href="/downloads/Ramona-Farmstand-Map.pdf">Printable version</a></li>
+          <li><a href="/submit">Add a stand</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Elsewhere</h2>
+        <ul>
+          <li><a href="https://www.youtube.com/@FarmstandTV" target="_blank" rel="noopener">YouTube</a></li>
+          <li><a href="https://www.minibarnmarket.com/" target="_blank" rel="noopener">Mini Barn Market</a></li>
+          <li><a href="https://farmhousegetaways.com/" target="_blank" rel="noopener">Farmhouse Getaways</a></li>
+          <li><a href="https://www.instagram.com/minibarnmarket/" target="_blank" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-fine">
+      <span>&copy; 2026 Farmstand.TV</span>
+      <span>Ramona, California</span>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  try {
+    var els = document.querySelectorAll('.rv');
+    if (!('IntersectionObserver' in window)) throw 0;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    for (var i = 0; i < els.length; i++) {
+      if (els[i].getBoundingClientRect().top < window.innerHeight) els[i].classList.add('in');
+      else io.observe(els[i]);
+    }
+  } catch (err) {
+    document.documentElement.className = document.documentElement.className.replace(/\bjs\b/, '');
+  }
+})();
+</script>
+<script src="/js/crawl-logic.js"></script>
+<script src="/js/crawl-data.js"></script>
+<script src="/js/crawl.js"></script>
+</body>
+</html>

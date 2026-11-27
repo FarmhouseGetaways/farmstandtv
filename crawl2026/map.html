@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script src="/js/attribution.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Q1BMT5J9KE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Q1BMT5J9KE');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Christmas Crawl map | Farmstand.TV</title>
+<meta name="description" content="The live Farmstand Christmas Crawl map. Only the stands on this year's list, your location, and the next leg.">
+<link rel="canonical" href="https://farmstandtv.com/crawl2026/map">
+<meta property="og:title" content="Christmas Crawl map | Farmstand.TV">
+<meta property="og:description" content="The live Farmstand Christmas Crawl map. Only the stands on this year's list, your location, and the next leg.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://farmstandtv.com/images/ramona-farmstand-map.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+<meta name="theme-color" content="#14281C">
+<link rel="stylesheet" href="/css/site.css?v=20261127b">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127a">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+</head>
+<body class="crawl crawl-tour">
+<a class="skip" href="#tour-sheet">Skip to the tour</a>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <a class="wordmark" href="/"><img src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV"></a>
+    <nav class="nav" aria-label="Main">
+      <a href="/maps">The Map</a>
+      <a href="/crawl2026" aria-current="page">The Crawl</a>
+      <a href="/tours">Watch</a>
+      <a href="/submit">Add a Stand</a>
+      <a href="/about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="tour-app">
+  <div class="tour-map">
+    <div id="crawlmap" role="region" aria-label="Christmas Crawl map"></div>
+    <div id="tour-styles" class="tour-styles"></div>
+  </div>
+
+  <aside id="tour-sheet" class="tour-sheet">
+    <p id="tour-progress" class="tour-progress" aria-live="polite">Loading the stands&hellip;</p>
+    <h1 class="tour-title">Christmas Crawl</h1>
+    <p class="ph-inline" data-ph>Placeholder lineup &mdash; the real list of stands is not final. <a href="/crawl2026">About the crawl</a></p>
+    <p id="crawl-missing" class="crawl-missing" hidden></p>
+    <p id="tour-idle" class="tour-lead">These are the only pins. Start the tour and this phone shows where you are.</p>
+
+    <div id="tour-leg" class="tour-leg is-off">
+      <p id="leg-kicker" class="tour-next-label">Next stop</p>
+      <h2 id="leg-name"></h2>
+      <p id="leg-meta" class="tour-meta"></p>
+      <p id="leg-addr" class="tour-addr"></p>
+      <p id="leg-hours" class="tour-hours is-off"></p>
+      <p id="leg-note" class="tour-note is-off">No road route came back. The line is straight from here to the stand. Navigate still opens driving directions.</p>
+      <div class="tour-actions">
+        <a id="leg-nav" class="btn btn-go" target="_blank" rel="noopener" href="#">Navigate</a>
+        <button id="leg-stamp" class="btn btn-line is-off" type="button">Stamp this stop</button>
+        <button id="leg-skip" class="btn btn-line is-off" type="button">Send this stop to the end</button>
+      </div>
+    </div>
+
+    <p id="tour-status" class="tour-status" role="status"></p>
+    <p id="pick-help" class="tour-note is-off">Tap the stands in the order you want to drive them. Tap a stand again to release it. Untapped stands stay at the end.</p>
+
+    <div class="tour-actions">
+      <button id="btn-start" class="btn btn-go" type="button">Start tour</button>
+      <button id="btn-end" class="btn btn-line is-off" type="button">End tour</button>
+      <button id="btn-suggest" class="btn btn-line" type="button">Suggest a route from here</button>
+      <button id="btn-pick" class="btn btn-line" type="button" aria-pressed="false">Set my own order</button>
+      <button id="btn-recenter" class="btn btn-line is-off" type="button">Recenter</button>
+      <button id="btn-reset" class="btn btn-line" type="button">Start over</button>
+    </div>
+
+    <ol id="tour-order" class="tour-order" aria-label="Tour order"></ol>
+    <p class="tour-fine">Time and distance are a rough drive, not a promise. Stamps stay on this phone. <a href="/crawl2026">About the crawl</a></p>
+    <noscript><p>The tour needs JavaScript. The full map is at <a href="/maps">/maps</a>.</p></noscript>
+  </aside>
+</main>
+
+<dialog id="celebrate" class="celebrate" aria-labelledby="cel-name">
+  <div class="stamp" aria-hidden="true"><span>Stamped</span></div>
+  <p class="kicker">Checked in</p>
+  <h2 id="cel-name"></h2>
+  <p id="cel-detail"></p>
+  <button id="cel-next" class="btn btn-go" type="button">On to the next stand</button>
+</dialog>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/js/crawl-logic.js"></script>
+<script src="/js/crawl-data.js"></script>
+<script src="/js/crawl-tour.js"></script>
+</body>
+</html>
