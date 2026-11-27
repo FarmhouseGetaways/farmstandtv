@@ -31,7 +31,7 @@
 
     if (!pack.placeholder) {
       var note = document.getElementById("lineup-note");
-      if (note) note.textContent = "These are the stands on the crawl so far. The name, the address, and the hours are the ones already on the farm stand map.";
+      if (note) note.textContent = "Here are the stands taking part, with their address and hours.";
       Array.prototype.forEach.call(document.querySelectorAll("[data-ph]"), function (el) {
         el.parentNode.removeChild(el);
       });
@@ -40,7 +40,7 @@
     var total = pack.matched.length + pack.missing.length;
     var count = document.getElementById("crawl-count");
     if (count) {
-      count.textContent = total === 1 ? "1 stand so far" : total + " stands so far";
+      count.textContent = total === 1 ? "1 stand" : total + " stands";
     }
 
     function card(s, i, unmatched) {
