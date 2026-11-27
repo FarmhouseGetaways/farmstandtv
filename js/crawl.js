@@ -140,7 +140,7 @@
   }
 
   function fail() {
-    list.innerHTML = '<li class="crawl-empty">Refresh the page, or open <a href="/maps">the Ramona map</a>.</li>';
+    list.innerHTML = '<li class="crawl-empty">Refresh the page.</li>';
   }
 
   CrawlData.loadCrawl().then(show).catch(fail);

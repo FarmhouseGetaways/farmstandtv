@@ -632,8 +632,6 @@
   box-shadow: 0 0 0 5px rgba(228, 197, 106, .28), 0 14px 30px rgba(0, 0, 0, .28);
 }
 .tour-go:hover { background: #fff; color: #1A1408; }
-.road-alt { text-align: center; margin: .9rem 0 0; }
-.road-alt a { color: #F0D78C; font-weight: 700; }
 @media (max-width: 46rem) {
   .tour-go:not([hidden]) {
     position: fixed;
