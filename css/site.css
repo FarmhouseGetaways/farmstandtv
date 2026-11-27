@@ -217,6 +217,12 @@ em.lit { font-style: italic; color: var(--screen); }
 }
 .nav a:hover { opacity: 1; color: var(--screen); }
 .nav a[aria-current="page"] { opacity: 1; color: var(--screen); }
+/* Five items (the crawl sits with the map) wrap to a lonely last line
+   on a phone unless the tracking comes in a little. */
+@media (max-width: 46rem) {
+  .nav { gap: .35rem .65rem; }
+  .nav a { letter-spacing: .1em; font-size: .64rem; }
+}
 
 /* ==========================================================================
    THE MAP — full bleed, edge to edge, glowing
