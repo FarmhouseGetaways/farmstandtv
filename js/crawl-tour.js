@@ -5,8 +5,8 @@
  *
  * The drive line comes from the public OSRM demo
  * (https://router.project-osrm.org). If that request fails, the line is
- * straight and the page says so. Navigate still opens Google Maps or
- * Apple Maps for the current leg — that handoff is the reliable one.
+ * straight and we stay quiet about it — shoppers just tap Directions.
+ * That button opens Google Maps, or Apple Maps on an iPhone or iPad.
  *
  * Order and stamps are kept in localStorage under fstv-crawl-2026-v1 on
  * this phone only. Nothing is sent to a server.
@@ -97,7 +97,7 @@
   }
 
   function navLabel() {
-    return isAppleMobile() ? "Navigate in Apple Maps" : "Navigate in Google Maps";
+    return "Directions";
   }
 
   function keyOf(s) { return CrawlLogic.standKey(s); }
@@ -202,7 +202,7 @@
     if (typeof L === "undefined" || !el.map) {
       if (el.map) {
         el.map.className = "fsmap-off";
-        el.map.innerHTML = '<p class="fsfail">The map did not load. The list below still works, and Navigate opens the maps app.</p>';
+        el.map.innerHTML = '<p class="fsfail">The map didn’t load. The list below still works, and Directions opens your phone’s map.</p>';
       }
       return;
     }
@@ -396,12 +396,8 @@
         state.routeIsStraight = false;
         drawRoute(r.coords, rest);
         updateLegReadout();
-        show(el.note, false);
         fitIfNew(r.coords, keyOf(next) + ":road");
-      }).catch(function () {
-        if (token !== routeToken) return;
-        show(el.note, true);
-      });
+      }).catch(function () { /* a straight line is already on the map, and we don't mention it */ });
       return;
     }
 
@@ -485,7 +481,7 @@
     updateHeading(here);
     state.user = here;
     if (state.waitTimer) { clearTimeout(state.waitTimer); state.waitTimer = null; }
-    if (el.status && /Looking for this phone|dropped out|Still no location/.test(el.status.textContent || "")) setStatus("");
+    if (el.status && /Finding you|Still looking|can’t see where|Location is off/.test(el.status.textContent || "")) setStatus("");
     drawUser();
     updateLegReadout();
     maybeReroute();
@@ -497,11 +493,11 @@
     /* A timeout between fixes is normal, and a later error must not wipe a
        good position with a scary line. Only a hard refusal is worth saying. */
     if (err && err.code === 1) {
-      setStatus("Location is blocked. You can stamp a stop by hand, and Navigate opens the maps app.");
+      setStatus("Location is off. You can stamp a stop yourself, or tap Directions.");
       return;
     }
     if (!state.user) {
-      setStatus("No location yet. Still trying. Navigate opens the maps app for this leg.");
+      setStatus("Still looking for you. You can tap Directions anytime.");
     }
   }
 
@@ -509,7 +505,7 @@
     if (state.waitTimer) clearTimeout(state.waitTimer);
     state.waitTimer = setTimeout(function () {
       if (state.active && !state.user) {
-        setStatus("Still no location. You can stamp a stop by hand, or use Navigate.");
+        setStatus("We still can’t see where you are. Tap Directions, or stamp the stop when you arrive.");
       }
     }, 12000);
   }
@@ -535,7 +531,7 @@
     requestWake();
     render();
     if (!navigator.geolocation) {
-      setStatus("This browser has no location service. You can stamp a stop by hand, and Navigate opens the maps app.");
+      setStatus("This phone can’t share your location. Tap Directions, or stamp each stop when you arrive.");
       refreshRoute();
       return;
     }
@@ -547,7 +543,7 @@
       });
     }
     if (!state.user) {
-      setStatus("Looking for this phone…");
+      setStatus("Finding you…");
       armWait();
     }
     refreshRoute();
@@ -566,7 +562,7 @@
     state.active = false;
     stopWatch();
     save();
-    setStatus("Tour paused. Stamps stay on this phone.");
+    setStatus("Tour paused. Your stamps are still on this phone.");
     render();
     refreshRoute();
   }
@@ -588,7 +584,7 @@
     if (!el.meta) return;
     var fig = legFigures();
     if (!fig) {
-      el.meta.textContent = state.active ? "Waiting on a location for the distance." : "Distance shows once the tour has a location.";
+      el.meta.textContent = state.active ? "We’ll show how far it is once we find you." : "Distance shows after you start.";
       return;
     }
     el.meta.textContent = CrawlLogic.formatMiles(fig.meters) + " \u00b7 " + CrawlLogic.formatEta(fig.seconds);
@@ -613,10 +609,10 @@
     if (el.celName) el.celName.textContent = stand.name;
     if (el.celDetail) {
       el.celDetail.textContent = nxt
-        ? "Next is " + nxt.name + "."
-        : "That was the last stop on this list.";
+        ? "Next up is " + nxt.name + "."
+        : "That was the last stand.";
     }
-    if (el.celNext) el.celNext.textContent = nxt ? "On to the next stand" : "That's the last one";
+    if (el.celNext) el.celNext.textContent = nxt ? "On to the next stand" : "Done";
     openCelebrate();
     render();
     refreshRoute();
@@ -637,7 +633,7 @@
       state.active = false;
       stopWatch();
       save();
-      setStatus("Every stand on this list is stamped on this phone.");
+      setStatus("You’ve stamped every stand on this phone.");
     }
     render();
     maybeArrive();
@@ -740,19 +736,19 @@
   function ensureFix(cb) {
     if (state.user) { cb(state.user); return; }
     if (!navigator.geolocation) { cb(null); return; }
-    setStatus("Looking for this phone…");
+    setStatus("Finding you…");
     navigator.geolocation.getCurrentPosition(function (pos) {
       onPos(pos);
       setStatus("");
       cb(state.user);
     }, function () {
-      setStatus("No location yet, so the list stays in the saved order.");
+      setStatus("No location yet, so we’ll keep this order.");
       cb(null);
     }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 });
   }
 
   function startOver() {
-    if (!window.confirm("Clear the stamps and the order saved on this phone?")) return;
+    if (!window.confirm("Clear your stamps and start fresh on this phone?")) return;
     stopWatch();
     state.active = false;
     state.visited = {};
@@ -819,13 +815,13 @@
 
     if (el.idle) {
       if (!state.stands.length) {
-        el.idle.textContent = "No stands matched the crawl list. The list is data/crawl2026.json.";
+        el.idle.textContent = "We couldn’t find the stands for this crawl. Try refreshing the page.";
         show(el.idle, true);
       } else if (done) {
-        el.idle.textContent = "Every stand on this list is stamped on this phone. Start over clears them.";
+        el.idle.textContent = "You’ve stamped every stand. Start over clears them on this phone.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "These are the only pins. Start the tour and this phone shows where you are. Take the suggested order from where you are, or set your own before you go.";
+        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. We can suggest an order from where you are, or you can choose your own.";
         show(el.idle, true);
       } else {
         show(el.idle, false);
@@ -847,15 +843,15 @@
     }
     show(el.stamp, !!(state.active && next && !done));
     show(el.skip, !!(state.active && unvisited().length > 1));
-    show(el.note, !!(state.active && state.routeIsStraight && state.user && next));
+    show(el.note, false);
 
     show(el.start, !state.active && !done);
-    if (el.start) el.start.textContent = nVis > 0 ? "Resume tour" : "Start tour";
+    if (el.start) el.start.textContent = nVis > 0 ? "Resume the tour" : "Start the tour";
     show(el.end, state.active && !done);
     show(el.suggest, !done && state.stands.length > 1);
     show(el.pick, !done && unvisited().length > 1);
     if (el.pick) {
-      el.pick.textContent = state.picking ? "Done setting order" : "Set my own order";
+      el.pick.textContent = state.picking ? "Done" : "Choose my own order";
       el.pick.setAttribute("aria-pressed", state.picking ? "true" : "false");
     }
     show(el.help, state.picking);
@@ -871,7 +867,7 @@
         var canNudge = !vis && !state.picking;
         var cls = (vis ? "is-visited" : "") + (isNext ? " is-next" : "");
         var handle = canNudge
-          ? '<button type="button" class="drag-handle" data-drag aria-label="Drag to reorder ' + esc(s.name) + '"></button>'
+          ? '<button type="button" class="drag-handle" data-drag aria-label="Drag to move ' + esc(s.name) + '"></button>'
           : "";
         var side;
         if (vis) side = '<span class="ord-stamp">Stamped</span>';
@@ -918,7 +914,7 @@
       ensureFix(function (origin) {
         if (!origin) return;
         applySuggestion(origin);
-        setStatus("Order is the short drive from where you are. You can still change it.");
+        setStatus("This order starts from where you are. You can still change it.");
       });
     });
     if (el.pick) el.pick.addEventListener("click", function () {
@@ -1011,8 +1007,7 @@
     }
     if (el.missing && state.missing.length) {
       el.missing.hidden = false;
-      el.missing.textContent = "Not on the map, so left off the tour: " + state.missing.join(", ") +
-        ". Check the spelling in data/crawl2026.json.";
+      el.missing.textContent = "We couldn’t find these on the map: " + state.missing.join(", ") + ".";
     }
     normalize();
     if (state.active && complete()) state.active = false;
@@ -1031,8 +1026,8 @@
 
   function fail() {
     grab();
-    if (el.progress) el.progress.textContent = "The crawl list did not load.";
-    if (el.idle) el.idle.textContent = "Refresh the page. The full map is still at /maps.";
+    if (el.progress) el.progress.textContent = "The stands didn’t load.";
+    if (el.idle) el.idle.textContent = "Refresh the page, or open the full map from The Map.";
   }
 
   grab();

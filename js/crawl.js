@@ -25,14 +25,14 @@
   }
 
   function show(pack) {
-    fillFact("tbd-date", pack.date, "Not set");
-    fillFact("tbd-time", pack.time, "Not set");
-    fillFact("tbd-start", pack.start, "Not set");
-    fillFact("tbd-prizes", pack.prizes, "None announced");
+    fillFact("tbd-date", pack.date, "Coming soon");
+    fillFact("tbd-time", pack.time, "Coming soon");
+    fillFact("tbd-start", pack.start, "Coming soon");
+    fillFact("tbd-prizes", pack.prizes, "Coming soon");
 
     if (!pack.placeholder) {
       var note = document.getElementById("lineup-note");
-      if (note) note.textContent = "These are the stands on the crawl. The name, the address, and the hours come from the farmstand map.";
+      if (note) note.textContent = "These are the stands on the crawl. The name, the address, and the hours are the ones already on the farm stand map.";
       Array.prototype.forEach.call(document.querySelectorAll("[data-ph]"), function (el) {
         el.parentNode.removeChild(el);
       });
@@ -46,7 +46,7 @@
     }
 
     if (!pack.matched.length) {
-      list.innerHTML = '<li class="crawl-empty">None of the names in the crawl list matched a stand. The list is data/crawl2026.json.</li>';
+      list.innerHTML = '<li class="crawl-empty">We couldn’t find the stands for this crawl. Try refreshing the page.</li>';
     } else {
       list.innerHTML = pack.matched.map(function (s, i) {
         var bits = ['<li class="crawl-card">',
@@ -68,7 +68,7 @@
         add(s.facebook, "Facebook");
         var tel = CrawlLogic.telHref(s.phone);
         bits.push('<p class="crawl-links">');
-        bits.push('<a href="/crawl2026/map#' + esc(CrawlLogic.slugify(s.name)) + '">On the tour map</a>');
+        bits.push('<a href="/crawl2026/map#' + esc(CrawlLogic.slugify(s.name)) + '">Show on the map</a>');
         links.forEach(function (l) {
           bits.push('<a href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.label) + "</a>");
         });
@@ -81,13 +81,12 @@
     var miss = document.getElementById("crawl-missing");
     if (miss && pack.missing.length) {
       miss.hidden = false;
-      miss.textContent = "Not on the map, so left off this page: " + pack.missing.join(", ") +
-        ". Check the spelling in data/crawl2026.json.";
+      miss.textContent = "We couldn’t find these on the map: " + pack.missing.join(", ") + ".";
     }
   }
 
   function fail() {
-    list.innerHTML = '<li class="crawl-empty">The stand list did not load. Refresh the page. The full map is still at <a href="/maps">/maps</a>.</li>';
+    list.innerHTML = '<li class="crawl-empty">The stands didn’t load. Refresh the page, or see <a href="/maps">the full map</a>.</li>';
   }
 
   CrawlData.loadCrawl().then(show).catch(fail);
