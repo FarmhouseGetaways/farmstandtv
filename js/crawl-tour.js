@@ -69,6 +69,9 @@
   };
 
   var routeLayers = [];
+  var overviewLayers = [];
+  var liveLayers = [];
+  var youGlide = 0;
   var routeToken = 0;
   var fittedKey = "";
   var lastFit = null;
@@ -254,25 +257,29 @@
   }
 
   function pinIcon(n, kind) {
-    var label = kind === "visited" ? "\u2713" : String(n);
+    var html = kind === "visited"
+      ? '<span class="pin pin-ornament"></span>'
+      : '<span class="pin pin-' + kind + '">' + n + "</span>";
     return L.divIcon({
       className: "pin-wrap",
-      html: '<span class="pin pin-' + kind + '">' + label + "</span>",
+      html: html,
       iconSize: [30, 30],
       iconAnchor: [15, 15]
     });
   }
 
   function youIcon() {
-    var arrow = "";
-    if (state.heading != null && isFinite(state.heading)) {
-      arrow = '<i style="transform:rotate(' + state.heading.toFixed(1) + 'deg)"></i>';
-    }
+    var h = (state.heading != null && isFinite(state.heading)) ? state.heading : 0;
     return L.divIcon({
       className: "you-wrap",
-      html: '<span class="you">' + arrow + "<b></b></span>",
-      iconSize: [28, 28],
-      iconAnchor: [14, 14]
+      html: '<span class="sleigh" style="transform:rotate(' + h.toFixed(1) + 'deg)">' +
+        '<svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true">' +
+        '<path fill="#F6E2A4" d="M18 3l5 9H13z"/>' +
+        '<rect x="7" y="12" width="22" height="8" rx="2" fill="#7E1E2E"/>' +
+        '<path d="M9 20c2 7 16 7 18 0" fill="none" stroke="#E4C56A" stroke-width="2"/>' +
+        '</svg></span>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
     });
   }
 
@@ -301,13 +308,31 @@
     });
   }
 
+  function glideYou(ll) {
+    var from = state.you.getLatLng();
+    if (reduced || !from) { state.you.setLatLng(ll); return; }
+    var id = ++youGlide;
+    var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+    var dur = 700;
+    var fLat = from.lat;
+    var fLng = from.lng;
+    function step(now) {
+      if (id !== youGlide || !state.you) return;
+      var t = Math.min(1, (now - t0) / dur);
+      var e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      state.you.setLatLng([fLat + (ll[0] - fLat) * e, fLng + (ll[1] - fLng) * e]);
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
   function drawUser() {
     if (!state.map || !state.user) return;
     var ll = [state.user.lat, state.user.lng];
     if (!state.you) {
       state.you = L.marker(ll, { icon: youIcon(), pane: "you", zIndexOffset: 800, title: "You are here" }).addTo(state.map);
     } else {
-      state.you.setLatLng(ll);
+      glideYou(ll);
       state.you.setIcon(youIcon());
     }
     var acc = state.user.accuracy;
@@ -334,29 +359,37 @@
     state.halo = null;
   }
 
-  function clearRoute() {
-    routeLayers.forEach(function (layer) {
+  function dropGroup(group) {
+    group.forEach(function (layer) {
       if (state.map) state.map.removeLayer(layer);
     });
+    group.length = 0;
+  }
+
+  function clearRoute() {
+    dropGroup(overviewLayers);
+    dropGroup(liveLayers);
     routeLayers = [];
   }
 
-  function addLine(coords, style) {
+  function paintLine(group, coords, style) {
     if (!state.map || !coords || coords.length < 2) return;
-    style.pane = "routes";
-    routeLayers.push(L.polyline(coords, style).addTo(state.map));
+    var s = { pane: "routes" };
+    var k;
+    for (k in style) if (Object.prototype.hasOwnProperty.call(style, k)) s[k] = style[k];
+    group.push(L.polyline(coords, s).addTo(state.map));
   }
 
-  function drawRoute(coords, restPts) {
-    clearRoute();
-    if (restPts && restPts.length >= 2) {
-      addLine(restPts, {
-        color: "#8E2432", weight: 3, opacity: .4, dashArray: "7 9",
-        lineCap: "round", lineJoin: "round"
-      });
-    }
-    addLine(coords, { color: "#5C3A16", weight: 8, opacity: .4, lineCap: "round", lineJoin: "round" });
-    addLine(coords, { color: "#C8962E", weight: 5, opacity: .95, lineCap: "round", lineJoin: "round" });
+  function paintDone(group, coords) {
+    paintLine(group, coords, { color: "#8A6420", weight: 11, opacity: 0.4, lineCap: "round", lineJoin: "round" });
+    paintLine(group, coords, { color: "#F6E2A4", weight: 5, opacity: 1, lineCap: "round", lineJoin: "round" });
+  }
+
+  function paintSoon(group, coords) {
+    paintLine(group, coords, {
+      color: "#C6A15B", weight: 4, opacity: 0.75, dashArray: "7 9",
+      lineCap: "round", lineJoin: "round"
+    });
   }
 
   function fitIfNew(coords, key) {
@@ -370,11 +403,42 @@
     else state.map.fitBounds(coords, opts);
   }
 
+  function routePairs() {
+    var stands = state.stands.filter(CrawlLogic.located);
+    var list = [];
+    var i;
+    for (i = 0; i < stands.length - 1; i++) {
+      list.push({ a: stands[i], b: stands[i + 1], done: isVis(stands[i + 1]) });
+    }
+    return { stands: stands, pairs: list };
+  }
+
+  function straightPair(p) {
+    return [[p.a.lat, p.a.lng], [p.b.lat, p.b.lng]];
+  }
+
+  function drawOverview(legs) {
+    dropGroup(overviewLayers);
+    legs.forEach(function (leg) {
+      if (leg.done) paintDone(overviewLayers, leg.coords);
+      else paintSoon(overviewLayers, leg.coords);
+    });
+  }
+
+  function drawLive(coords) {
+    dropGroup(liveLayers);
+    if (coords) paintDone(liveLayers, coords);
+  }
+
   function refreshRoute() {
     var token = ++routeToken;
-    var next = nextStop();
-    var upcoming = unvisited().filter(CrawlLogic.located);
+    var pack = routePairs();
+    var legs = pack.pairs.map(function (p) {
+      return { coords: straightPair(p), done: p.done };
+    });
+    drawOverview(legs);
 
+    var next = nextStop();
     if (state.active && state.user && next && CrawlLogic.located(next)) {
       var straightMeters = CrawlLogic.haversine(state.user, next);
       state.legRoute = {
@@ -385,8 +449,7 @@
       };
       state.routeIsStraight = true;
       var bee = [[state.user.lat, state.user.lng], [next.lat, next.lng]];
-      var rest = upcoming.map(function (s) { return [s.lat, s.lng]; });
-      drawRoute(bee, rest);
+      drawLive(bee);
       updateLegReadout();
       fitIfNew(bee, keyOf(next) + ":bee");
       state.lastOrigin = { lat: state.user.lat, lng: state.user.lng };
@@ -397,26 +460,34 @@
         r.origin = { lat: state.user.lat, lng: state.user.lng };
         state.legRoute = r;
         state.routeIsStraight = false;
-        drawRoute(r.coords, rest);
+        drawLive(r.coords);
         updateLegReadout();
         fitIfNew(r.coords, keyOf(next) + ":road");
-      }).catch(function () { /* a straight line is already on the map, and we don't mention it */ });
-      return;
+      }).catch(function () { /* the straight line is already on the map */ });
+    } else {
+      state.legRoute = null;
+      state.routeIsStraight = false;
+      show(el.note, false);
+      drawLive(null);
+      if (!state.active && pack.stands.length) {
+        fitIfNew(pack.stands.map(function (s) { return [s.lat, s.lng]; }), "all");
+      }
     }
 
-    state.legRoute = null;
-    state.routeIsStraight = false;
-    show(el.note, false);
-    var pts = state.stands.filter(CrawlLogic.located);
-    if (pts.length < 2) { clearRoute(); return; }
-    var overview = pts.map(function (s) { return [s.lat, s.lng]; });
-    drawRoute(overview, null);
-    if (!state.active) fitIfNew(overview, "all");
-    osrm(pts).then(function (r) {
-      if (token !== routeToken) return;
-      drawRoute(r.coords, null);
-      if (!state.active) fitIfNew(r.coords, "all-road");
-    }).catch(function () { /* the straight line is already down */ });
+    if (pack.stands.length >= 2) {
+      osrm(pack.stands).then(function (r) {
+        if (token !== routeToken) return;
+        var cuts = r.cuts || [];
+        var nextLegs = pack.pairs.map(function (p, i) {
+          var s = cuts[i];
+          var e = cuts[i + 1];
+          var slice = (isFinite(s) && isFinite(e)) ? r.coords.slice(s, e + 1) : straightPair(p);
+          return { coords: slice.length >= 2 ? slice : straightPair(p), done: p.done };
+        });
+        drawOverview(nextLegs);
+        if (!state.active) fitIfNew(r.coords, "all-road");
+      }).catch(function () { /* the straight line is already down */ });
+    }
   }
 
   function osrm(points) {
@@ -440,7 +511,8 @@
           coords: route.geometry.coordinates.map(function (c) { return [c[1], c[0]]; }),
           meters: route.distance,
           seconds: route.duration,
-          fromOsrm: true
+          fromOsrm: true,
+          cuts: (d.waypoints || []).map(function (w) { return w.waypoint_index; })
         };
       });
   }
@@ -777,20 +849,18 @@
     var nVis = visitedCount();
     var done = complete();
 
-    if (el.progress) {
-      el.progress.textContent = nVis
-        ? (nVis === 1 ? "1 done" : nVis + " done")
-        : "";
-    }
+    var doneLine = nVis === 0 ? "" : (nVis === 1 ? "1 stop done" : nVis + " stops done");
+    if (el.progress) el.progress.textContent = doneLine;
     var dots = document.getElementById("stamp-dots");
     var cardLabel = document.getElementById("stamp-card-label");
     if (dots) {
       var marks = "";
-      var d;
-      for (d = 0; d < nVis; d++) marks += "<i></i>";
+      state.stands.forEach(function (s) {
+        marks += "<i" + (isVis(s) ? ' class="is-on"' : "") + "></i>";
+      });
       dots.innerHTML = marks;
     }
-    if (cardLabel) cardLabel.textContent = nVis ? "Your stamps" : "Collect a stamp at every stop.";
+    if (cardLabel) cardLabel.textContent = doneLine || "Collect a stamp at every stop.";
 
     if (el.idle) {
       if (!state.stands.length) {
@@ -912,7 +982,13 @@
     }, { passive: false });
 
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "visible" && state.active && !complete()) requestWake();
+      if (document.visibilityState !== "visible" || !state.active || complete()) return;
+      requestWake();
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        onPos(pos);
+        refreshRoute();
+      }, function () {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 });
     });
   }
 

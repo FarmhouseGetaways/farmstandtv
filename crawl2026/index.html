@@ -25,16 +25,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=Rye&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-<meta name="theme-color" content="#14281C">
+<!-- Launch day: set start_url in /crawl2026/manifest.webmanifest to /crawl2026 when showStands is true. -->
+<link rel="manifest" href="/crawl2026/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Xmas Crawl">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#7E1E2E">
 <script>
 if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
 </script>
 <link rel="stylesheet" href="/css/site.css?v=20261127b">
-<link rel="stylesheet" href="/css/crawl.css?v=20261127h">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127i">
 <script src="/js/scroll-progress.js" defer></script>
 </head>
 <body class="crawl">
 <a class="skip" href="#main">Skip to content</a>
+<div id="install-tip" class="install-tip" hidden>
+  <p id="install-text">Add Xmas Crawl to your home screen.</p>
+  <button type="button" id="install-go" class="install-go" hidden>Add</button>
+  <button type="button" id="install-x" class="install-x" aria-label="Dismiss">×</button>
+</div>
 
 <header class="masthead">
   <div class="wrap masthead-inner">
@@ -226,5 +237,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
 <script src="/js/crawl-logic.js"></script>
 <script src="/js/crawl-data.js"></script>
 <script src="/js/crawl.js"></script>
+<script src="/js/crawl-install.js"></script>
 </body>
 </html>

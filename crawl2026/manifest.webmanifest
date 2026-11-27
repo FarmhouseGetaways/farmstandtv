@@ -1,0 +1,15 @@
+{
+  "name": "Xmas Crawl",
+  "short_name": "Xmas Crawl",
+  "description": "The Ramona Farm Stand Christmas Crawl.",
+  "start_url": "/crawl2026-preview-h4k9mq2x/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#10241A",
+  "theme_color": "#7E1E2E",
+  "icons": [
+    { "src": "/images/crawl-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/images/crawl-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/images/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
