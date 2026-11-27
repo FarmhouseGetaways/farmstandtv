@@ -48,8 +48,10 @@
         time: config.time || "",
         start: config.start || "",
         prizes: config.prizes || "",
+        firstStop: config.firstStop || "",
         source: feed.source,
-        matched: result.matched,
+        matched: logic.pinFirst(result.matched, config.firstStop),
+        route: logic.routeFromFirst(result.matched, config.firstStop),
         missing: result.missing
       };
     });

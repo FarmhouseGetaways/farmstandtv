@@ -218,7 +218,8 @@
     return route;
   }
 
-  /* origin is {lat, lng} or null. Without a location, the config order stands. */
+  /* origin is {lat, lng} or null. Without a location, the config order stands.
+     The anchor stop is not in this list — routeFromFirst holds it out. */
   function optimizeOrder(origin, stands) {
     var list = (stands || []).slice();
     if (!origin || !isFinite(origin.lat) || !isFinite(origin.lng)) return list;
@@ -227,6 +228,43 @@
     list.forEach(function (s) { (located(s) ? pins : rest).push(s); });
     if (pins.length < 2) return pins.concat(rest);
     return twoOpt(origin, nearestNeighbor(origin, pins)).concat(rest);
+  }
+
+  /* firstStop is a name, slug, id, or Instagram handle from the crawl file.
+     "mini-barn-market" matches Mini Barn Market. */
+  function isFirstStop(s, token) {
+    var raw = String(token || "").trim();
+    if (!raw || !s) return false;
+    var want = norm(raw);
+    var slug = slugify(raw);
+    var fields = [s.name, s.crawlName, s.slug, s.id, s.crawlInstagram];
+    var i;
+    for (i = 0; i < fields.length; i++) {
+      if (fields[i] == null || String(fields[i]).trim() === "") continue;
+      var n = String(fields[i]);
+      if (norm(n) === want || slugify(n) === slug) return true;
+    }
+    return false;
+  }
+
+  function pinFirst(stands, token) {
+    var list = (stands || []).slice();
+    var anchor = null;
+    var i;
+    for (i = 0; i < list.length; i++) {
+      if (isFirstStop(list[i], token)) { anchor = list[i]; break; }
+    }
+    if (!anchor) return list;
+    return [anchor].concat(list.filter(function (s) { return s !== anchor; }));
+  }
+
+  /* Default drive: the configured stop stays first. The rest is the short
+     drive onward from that stand, not from wherever the phone is. */
+  function routeFromFirst(stands, token) {
+    var pinned = pinFirst(stands, token);
+    if (!pinned.length || !isFirstStop(pinned[0], token) || !located(pinned[0])) return pinned;
+    var anchor = pinned[0];
+    return [anchor].concat(optimizeOrder(anchor, pinned.slice(1)));
   }
 
   function lookupTable(stands) {
@@ -331,6 +369,8 @@
     saneStand: saneStand,
     located: located,
     matchParticipants: matchParticipants,
+    pinFirst: pinFirst,
+    routeFromFirst: routeFromFirst,
     haversine: haversine,
     bearing: bearing,
     optimizeOrder: optimizeOrder,

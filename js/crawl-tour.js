@@ -8,13 +8,15 @@
  * straight and we stay quiet about it — shoppers just tap Directions.
  * That button opens Google Maps, or Apple Maps on an iPhone or iPad.
  *
- * Order and stamps are kept in localStorage under fstv-crawl-2026-v1 on
- * this phone only. Nothing is sent to a server.
+ * Order and stamps are kept in localStorage under fstv-crawl-2026-v2 on
+ * this phone only. v1 is ignored on purpose so a phone that tried an
+ * earlier order starts fresh, with the configured first stop at the top.
+ * Nothing is sent to a server.
  */
 (function () {
   if (!window.CrawlLogic || !window.CrawlData) return;
 
-  var KEY = "fstv-crawl-2026-v1";
+  var KEY = "fstv-crawl-2026-v2";
   var OSRM = "https://router.project-osrm.org/route/v1/driving/";
   var CENTER = [33.03, -116.87];
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -140,7 +142,7 @@
       var raw = localStorage.getItem(KEY);
       if (!raw) return null;
       var o = JSON.parse(raw);
-      if (!o || o.v !== 1) return null;
+      if (!o || o.v !== 2) return null;
       return o;
     } catch (e) { return null; }
   }
@@ -151,7 +153,7 @@
     state.stands.forEach(function (s) { if (isVis(s)) visited.push(keyOf(s)); });
     try {
       localStorage.setItem(KEY, JSON.stringify({
-        v: 1, order: order, visited: visited, started: !!state.active
+        v: 2, order: order, visited: visited, started: !!state.active
       }));
     } catch (e) { /* private mode, full disk — the tour still runs */ }
   }
@@ -651,11 +653,8 @@
 
   /* ---- order ---- */
 
-  function applySuggestion(origin) {
-    normalize();
-    var vis = state.stands.filter(isVis);
-    var rest = state.stands.filter(function (s) { return !isVis(s); });
-    state.stands = vis.concat(origin ? CrawlLogic.optimizeOrder(origin, rest) : rest);
+  function applySuggestion() {
+    state.stands = state.original.slice();
     save();
     render();
     refreshRoute();
@@ -792,7 +791,8 @@
         el.idle.textContent = "You’ve stamped every stand. Start over clears them on this phone.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. We can suggest an order from where you are.";
+        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. The suggested order starts at " +
+          (state.original.length ? shown(state.original[0]) : "the first stop") + ".";
         show(el.idle, true);
       } else {
         show(el.idle, false);
@@ -863,11 +863,9 @@
       refreshRoute();
     });
     if (el.suggest) el.suggest.addEventListener("click", function () {
-      ensureFix(function (origin) {
-        if (!origin) return;
-        applySuggestion(origin);
-        setStatus("This order starts from where you are. You can still change it.");
-      });
+      applySuggestion();
+      var who = state.stands.length ? shown(state.stands[0]) : "the first stop";
+      setStatus("This order starts at " + who + ". You can still change it.");
     });
     if (el.reset) el.reset.addEventListener("click", startOver);
     if (el.recenter) el.recenter.addEventListener("click", recenter);
@@ -891,13 +889,14 @@
         focusRow(key);
       });
       el.order.addEventListener("pointerdown", onOrderPointerDown);
-      el.order.addEventListener("pointermove", onOrderPointerMove);
-      el.order.addEventListener("pointerup", onOrderPointerUp);
-      el.order.addEventListener("pointercancel", onOrderPointerUp);
       el.order.addEventListener("contextmenu", function (e) {
         if (drag) e.preventDefault();
       });
     }
+
+    document.addEventListener("pointermove", onOrderPointerMove);
+    document.addEventListener("pointerup", onOrderPointerUp);
+    document.addEventListener("pointercancel", onOrderPointerUp);
 
     document.addEventListener("touchmove", function (e) {
       if (drag && drag.lifted && e.cancelable) e.preventDefault();
@@ -1137,8 +1136,8 @@
   function boot(pack) {
     state.placeholder = pack.placeholder;
     state.missing = pack.missing || [];
-    state.original = pack.matched.slice();
-    var saved = CrawlLogic.reconcile(loadSaved(), pack.matched);
+    state.original = (pack.route || pack.matched).slice();
+    var saved = CrawlLogic.reconcile(loadSaved(), state.original);
     state.stands = saved.order;
     state.visited = saved.visited;
     state.active = !!(saved.started && !complete());
