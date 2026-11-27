@@ -42,6 +42,7 @@
       var feed = pair[1];
       var logic = root.CrawlLogic;
       var result = logic.matchParticipants(feed.stands, config.participants || []);
+      logic.applyHideHours(result.matched, config.hideHours);
       return {
         placeholder: config.placeholder !== false,
         date: config.date || "",
