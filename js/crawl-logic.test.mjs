@@ -103,6 +103,7 @@ test("the crawl lineup matches stands we already have an address for", function 
   assert.match(config.time, /9 AM/);
   assert.match(config.prizes, /#RamonaFarmStandCrawl/);
   assert.equal(config.participants.length, 14);
+  assert.equal(config.firstStop, "mini-barn-market");
   var extra = [
     { name: "The Coop", lat: 33.0106976, lng: -116.87, instagram: "https://www.instagram.com/Instathe_coop_farm_stand/" },
     { name: "Magnolia Ln Market", lat: 33.0516902, lng: -116.86 },
@@ -118,4 +119,21 @@ test("the crawl lineup matches stands we already have an address for", function 
   assert.equal(found.matched[1].crawlName, "The Coop Farm Stand");
   assert.equal(found.matched[1].name, "The Coop");
   assert.equal(found.matched[2].name, "Magnolia Ln Market");
+  var shuffled = found.matched.slice().reverse();
+  var pinned = L.pinFirst(shuffled, "mini-barn-market");
+  assert.equal(pinned[0].name, "Mini Barn Market");
+  assert.equal(pinned[1].name, shuffled[0].name);
+  var route = L.routeFromFirst(shuffled, "mini-barn-market");
+  assert.equal(route[0].name, "Mini Barn Market");
+  assert.equal(route.length, 14);
+  assert.equal(route.filter(function (s) { return s.name === "Mini Barn Market"; }).length, 1);
+});
+
+test("suggested drive keeps the configured stop first and leaves from there", function () {
+  var barn = { name: "Mini Barn Market", lat: 33.02, lng: -116.93 };
+  var near = { name: "Near", lat: 33.03, lng: -116.93 };
+  var mid = { name: "Mid", lat: 33.05, lng: -116.93 };
+  var far = { name: "Far", lat: 33.09, lng: -116.93 };
+  var route = L.routeFromFirst([far, mid, near, barn], "mini-barn-market");
+  assert.deepEqual(route.map(function (s) { return s.name; }), ["Mini Barn Market", "Near", "Mid", "Far"]);
 });
