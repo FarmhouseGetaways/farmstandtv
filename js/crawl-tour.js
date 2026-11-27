@@ -111,11 +111,6 @@
   function isVis(s) { return !!state.visited[keyOf(s)]; }
   function isSkipped(s) { return !!(s && state.skipped[keyOf(s)]); }
   function isDone(s) { return isVis(s) || isSkipped(s); }
-  function isAnchor(s) {
-    if (!s) return false;
-    return CrawlLogic.slugify(s.name) === "mini-barn-market" ||
-      CrawlLogic.slugify(s.crawlName || "") === "mini-barn-market";
-  }
 
   function visitedCount() {
     var n = 0;
@@ -141,14 +136,11 @@
     var vis = [];
     var rest = [];
     var skipped = [];
-    var anchor = null;
     state.stands.forEach(function (s) {
       if (isVis(s)) vis.push(s);
       else if (isSkipped(s)) skipped.push(s);
-      else if (!anchor && isAnchor(s)) anchor = s;
       else rest.push(s);
     });
-    if (anchor) rest.unshift(anchor);
     state.stands = vis.concat(rest, skipped);
   }
 
@@ -579,7 +571,8 @@
     updateHeading(here);
     state.user = here;
     if (state.waitTimer) { clearTimeout(state.waitTimer); state.waitTimer = null; }
-    if (el.status && /Finding you|Tap Directions anytime|can’t see where/.test(el.status.textContent || "")) setStatus("");
+    if (el.status && /Finding you|Tap Directions anytime|Turn on location/.test(el.status.textContent || "")) setStatus("");
+    showHere(false);
     drawUser();
     updateLegReadout();
     maybeReroute();
@@ -587,11 +580,18 @@
     followEdge();
   }
 
+  function showHere(on) {
+    var node = document.getElementById("here-fallback");
+    if (!node) return;
+    node.classList.toggle("is-off", !on);
+  }
+
   function onPosErr(err) {
     /* A timeout between fixes is normal, and a later error must not wipe a
        good position with a scary line. Only a hard refusal is worth saying. */
     if (err && err.code === 1) {
-      setStatus("We can’t see where you are. Tap Directions, or stamp this stop when you get there.");
+      setStatus("");
+      showHere(true);
       return;
     }
     if (!state.user) {
@@ -603,7 +603,8 @@
     if (state.waitTimer) clearTimeout(state.waitTimer);
     state.waitTimer = setTimeout(function () {
       if (state.active && !state.user) {
-        setStatus("We can’t see where you are. Tap Directions, or stamp this stop when you get there.");
+        setStatus("");
+        showHere(true);
       }
     }, 12000);
   }
@@ -628,7 +629,8 @@
     requestWake();
     render();
     if (!navigator.geolocation) {
-      setStatus("Tap Directions, or stamp each stop when you arrive.");
+      setStatus("");
+      showHere(true);
       refreshRoute();
       return;
     }
@@ -760,10 +762,10 @@
     var n;
     for (n = 0; n < state.stands.length; n++) if (keyOf(state.stands[n]) === key) i = n;
     if (i < 0) return;
-    if (isAnchor(state.stands[i]) || isDone(state.stands[i])) return;
+    if (isDone(state.stands[i])) return;
     var j = i + dir;
     if (j < 0 || j >= state.stands.length) return;
-    if (isDone(state.stands[j]) || isAnchor(state.stands[j])) return;
+    if (isDone(state.stands[j])) return;
     var tmp = state.stands[i];
     state.stands[i] = state.stands[j];
     state.stands[j] = tmp;
@@ -775,7 +777,7 @@
 
   function skipStop() {
     var next = nextStop();
-    if (!next || isAnchor(next)) return;
+    if (!next) return;
     state.skipped[keyOf(next)] = true;
     normalize();
     save();
@@ -933,7 +935,7 @@
       updateLegReadout();
     }
     show(el.nav, !!(state.active && next));
-    show(el.skip, !!(state.active && next && !isAnchor(next)));
+    show(el.skip, !!(state.active && next));
     show(el.note, false);
 
     show(el.start, !state.active && !done);
@@ -947,21 +949,18 @@
         var vis = isVis(s);
         var isNext = next && keyOf(next) === key;
         var cls = (vis ? "is-visited" : "") + (isNext ? " is-next" : "");
-        var anchor = isAnchor(s);
         var skipped = isSkipped(s);
         var label = shown(s) + (vis
           ? ". Stamped."
           : skipped
             ? ". Skipped."
-            : anchor
-              ? ". Stays first."
-              : ". Press and hold to move it. Alt and the arrow keys move it.");
+            : ". Press and hold to move it. Alt and the arrow keys move it.");
         var side = vis
           ? '<span class="ord-stamp">Stamped</span>'
           : skipped
             ? '<span class="ord-stamp">Skipped</span>'
             : "";
-        return '<li class="' + cls + (anchor ? " is-anchor" : "") + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis || skipped ? "1" : "0") + '" data-anchor="' + (anchor ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
+        return '<li class="' + cls + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis || skipped ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
           '<span class="ord-num">' + (i + 1) + "</span>" +
           '<span class="ord-text"><span class="ord-name">' + esc(shown(s)) +
             (s.ours ? ' <span class="fsrow-ours">Ours</span>' : "") + "</span>" +
@@ -977,6 +976,11 @@
     if (el.start) el.start.addEventListener("click", startWatch);
     if (el.end) el.end.addEventListener("click", endTour);
     if (el.skip) el.skip.addEventListener("click", skipStop);
+    var hereBtn = document.getElementById("here-btn");
+    if (hereBtn) hereBtn.addEventListener("click", function () {
+      var next = nextStop();
+      if (next) stamp(next);
+    });
     if (el.orderBtn) el.orderBtn.addEventListener("click", function () {
       var panel = document.getElementById("order-panel");
       if (!panel) return;
@@ -1036,7 +1040,7 @@
     if (e.pointerType === "mouse" && e.button !== 0) return;
     if (e.target.closest && e.target.closest("button, a")) return;
     var row = e.target.closest ? e.target.closest("#tour-order li") : null;
-    if (!row || row.getAttribute("data-visited") === "1" || row.getAttribute("data-anchor") === "1") return;
+    if (!row || row.getAttribute("data-visited") === "1") return;
     if (drag && drag.lifted) return;
     var rect = row.getBoundingClientRect();
     drag = {
@@ -1137,7 +1141,6 @@
     for (i = 0; i < rows.length; i++) {
       if (rows[i] === drag.row) continue;
       if (rows[i].getAttribute("data-visited") === "1") continue;
-      if (rows[i].getAttribute("data-anchor") === "1") continue;
       var r = rows[i].getBoundingClientRect();
       spots.push({ el: rows[i], mid: r.top + r.height / 2 });
     }
@@ -1288,10 +1291,7 @@
     /* ?start=1 comes from the big button. Begin at once so they are not
        asked to tap Start a second time. */
     if (/[?&]start=1(?:&|$)/.test(location.search)) {
-      if (!complete()) {
-        if (visitedCount() === 0) state.stands = state.original.slice();
-        startWatch();
-      }
+      if (!complete()) startWatch();
       try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) { /* keep the query */ }
     }
   }

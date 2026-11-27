@@ -762,6 +762,23 @@ body.crawl-tour .masthead { flex-shrink: 0; }
   line-height: 1.02;
   margin: .2rem 0 .35rem;
 }
+.here-fallback {
+  margin: .7rem 0 0;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: .92rem;
+  line-height: 1.4;
+}
+.here-fallback button {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #7E1E2E;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
 .tour-secondary {
   display: flex;
   justify-content: center;

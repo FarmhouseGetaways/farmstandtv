@@ -43,7 +43,9 @@
 
 # Christmas Crawl. Pretty URLs already serve crawl2026/index.html at
 # /crawl2026; these keep /crawl2026 and /crawl2026/map explicit.
-# The public map sends people back to /crawl2026 while showStands is false.
+# The public /crawl2026/map URL is gated by netlify/edge-functions/crawl-map-gate.js.
+# While showStands is false it redirects to /crawl2026. The private preview
+# path above is separate and still opens the tour.
 [[redirects]]
   from = "/crawl2026/map"
   to = "/crawl2026/map.html"

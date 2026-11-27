@@ -33,7 +33,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#7E1E2E">
 <link rel="stylesheet" href="/css/site.css?v=20261127b">
-<link rel="stylesheet" href="/css/crawl.css?v=20261127k">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127l">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body class="crawl crawl-tour">
@@ -83,6 +83,7 @@
       <p id="leg-note" class="tour-note is-off"></p>
       <div class="tour-actions">
         <a id="leg-nav" class="btn btn-go tour-directions" target="_blank" rel="noopener" href="#">Directions</a>
+        <p id="here-fallback" class="here-fallback is-off">Turn on location so stops stamp themselves. <button type="button" id="here-btn">I'm here</button></p>
       </div>
     </div>
 
@@ -96,7 +97,7 @@
     </div>
 
     <div id="order-panel" hidden>
-      <p class="reorder-hint" id="reorder-hint">Press and hold a stop to move it. Mini Barn Market stays first.</p>
+      <p class="reorder-hint" id="reorder-hint">Press and hold a stop to move it.</p>
       <p class="sr-only">With a keyboard, focus a stop and hold Alt while pressing the up or down arrow.</p>
       <ol id="tour-order" class="tour-order" aria-label="Tour order"></ol>
     </div>
