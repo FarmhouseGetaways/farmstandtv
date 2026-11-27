@@ -13,10 +13,10 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Christmas Crawl map | Farmstand.TV</title>
-<meta name="description" content="The live Farmstand Christmas Crawl map. Only the stands on this year's list, your location, and the next leg.">
+<meta name="description" content="The Farmstand Christmas Crawl map. The stands on this year’s list, where you are, and how to get to the next one.">
 <link rel="canonical" href="https://farmstandtv.com/crawl2026/map">
 <meta property="og:title" content="Christmas Crawl map | Farmstand.TV">
-<meta property="og:description" content="The live Farmstand Christmas Crawl map. Only the stands on this year's list, your location, and the next leg.">
+<meta property="og:description" content="The Farmstand Christmas Crawl map. The stands on this year’s list, where you are, and how to get to the next one.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://farmstandtv.com/images/ramona-farmstand-map.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -55,9 +55,9 @@
   <aside id="tour-sheet" class="tour-sheet">
     <p id="tour-progress" class="tour-progress" aria-live="polite">Loading the stands&hellip;</p>
     <h1 class="tour-title">Christmas Crawl</h1>
-    <p class="ph-inline" data-ph>Placeholder lineup &mdash; the real list of stands is not final. <a href="/crawl2026">About the crawl</a></p>
+    <p class="ph-inline" data-ph>Sample list. The real stands are coming soon. <a href="/crawl2026">About the crawl</a></p>
     <p id="crawl-missing" class="crawl-missing" hidden></p>
-    <p id="tour-idle" class="tour-lead">These are the only pins. Start the tour and this phone shows where you are.</p>
+    <p id="tour-idle" class="tour-lead">These are the stands on the crawl. Start the tour and you’ll show up on the map.</p>
 
     <div id="tour-leg" class="tour-leg is-off">
       <p id="leg-kicker" class="tour-next-label">Next stop</p>
@@ -65,35 +65,35 @@
       <p id="leg-meta" class="tour-meta"></p>
       <p id="leg-addr" class="tour-addr"></p>
       <p id="leg-hours" class="tour-hours is-off"></p>
-      <p id="leg-note" class="tour-note is-off">No road route came back. The line is straight from here to the stand. Navigate still opens driving directions.</p>
+      <p id="leg-note" class="tour-note is-off"></p>
       <div class="tour-actions">
-        <a id="leg-nav" class="btn btn-go" target="_blank" rel="noopener" href="#">Navigate</a>
+        <a id="leg-nav" class="btn btn-go" target="_blank" rel="noopener" href="#">Directions</a>
         <button id="leg-stamp" class="btn btn-line is-off" type="button">Stamp this stop</button>
-        <button id="leg-skip" class="btn btn-line is-off" type="button">Send this stop to the end</button>
+        <button id="leg-skip" class="btn btn-line is-off" type="button">Skip for now</button>
       </div>
     </div>
 
     <p id="tour-status" class="tour-status" role="status"></p>
-    <p id="pick-help" class="tour-note is-off">Tap the stands in the order you want to drive them. Tap a stand again to release it. Untapped stands stay at the end.</p>
+    <p id="pick-help" class="tour-note is-off">Tap the stands in the order you want to visit them. Tap one again to undo it. Anything you skip stays at the end.</p>
 
     <div class="tour-actions">
-      <button id="btn-start" class="btn btn-go" type="button">Start tour</button>
-      <button id="btn-end" class="btn btn-line is-off" type="button">End tour</button>
-      <button id="btn-suggest" class="btn btn-line" type="button">Suggest a route from here</button>
-      <button id="btn-pick" class="btn btn-line" type="button" aria-pressed="false">Set my own order</button>
-      <button id="btn-recenter" class="btn btn-line is-off" type="button">Recenter</button>
+      <button id="btn-start" class="btn btn-go" type="button">Start the tour</button>
+      <button id="btn-end" class="btn btn-line is-off" type="button">End the tour</button>
+      <button id="btn-suggest" class="btn btn-line" type="button">Suggest an order</button>
+      <button id="btn-pick" class="btn btn-line" type="button" aria-pressed="false">Choose my own order</button>
+      <button id="btn-recenter" class="btn btn-line is-off" type="button">Show where I am</button>
       <button id="btn-reset" class="btn btn-line" type="button">Start over</button>
     </div>
 
     <ol id="tour-order" class="tour-order" aria-label="Tour order"></ol>
-    <p class="tour-fine">Time and distance are a rough drive, not a promise. Stamps stay on this phone. <a href="/crawl2026">About the crawl</a></p>
+    <p class="tour-fine">The time is a rough guess. Your stamps stay on this phone. <a href="/crawl2026">About the crawl</a></p>
     <noscript><p>The tour needs JavaScript. The full map is at <a href="/maps">/maps</a>.</p></noscript>
   </aside>
 </main>
 
 <dialog id="celebrate" class="celebrate" aria-labelledby="cel-name">
   <div class="stamp" aria-hidden="true"><span>Stamped</span></div>
-  <p class="kicker">Checked in</p>
+  <p class="kicker">You’re here</p>
   <h2 id="cel-name"></h2>
   <p id="cel-detail"></p>
   <button id="cel-next" class="btn btn-go" type="button">On to the next stand</button>
