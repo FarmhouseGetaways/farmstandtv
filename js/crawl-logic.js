@@ -67,32 +67,80 @@
     return !!(s && s.lat != null && s.lng != null && !s.outOfRange && isFinite(s.lat) && isFinite(s.lng));
   }
 
+  function entryBits(entry) {
+    if (entry && typeof entry === "object") {
+      return {
+        name: String(entry.name || "").trim(),
+        match: String(entry.match || "").trim(),
+        instagram: String(entry.instagram || "").replace(/^@/, "").trim()
+      };
+    }
+    var raw = entry == null ? "" : String(entry).trim();
+    return { name: raw, match: "", instagram: "" };
+  }
+
+  function igHandle(value) {
+    var s = String(value || "");
+    var m = s.match(/instagram\.com\/([^/?#]+)/i);
+    s = m ? m[1] : s;
+    return norm(s).replace(/^@/, "").replace(/_+$/g, "");
+  }
+
+  function sameHandle(a, b) {
+    if (!a || !b) return false;
+    if (a === b) return true;
+    var short = a.length < b.length ? a : b;
+    var long = a.length < b.length ? b : a;
+    return short.length >= 8 && long.indexOf(short) !== -1;
+  }
+
+  function standHandles(s) {
+    return [s.instagram, s.url, s.facebook].map(igHandle).filter(Boolean);
+  }
+
+  function textHit(wantRaw, s) {
+    var want = norm(wantRaw);
+    var wantSlug = slugify(wantRaw);
+    if (!want) return false;
+    var id = s.id == null ? "" : String(s.id).trim();
+    var slug = s.slug == null ? "" : String(s.slug).trim();
+    if (id && (id === wantRaw || norm(id) === want)) return true;
+    if (slug && (norm(slug) === want || slugify(slug) === wantSlug)) return true;
+    return norm(s.name) === want || slugify(s.name) === wantSlug;
+  }
+
   function matchParticipants(stands, entries) {
     var pool = (stands || []).map(saneStand).filter(function (s) { return s && s.name; });
     var used = {};
     var matched = [];
     var missing = [];
     (entries || []).forEach(function (entry) {
-      var raw = entry == null ? "" : String(entry).trim();
-      if (!raw) return;
-      var want = norm(raw);
-      var wantSlug = slugify(raw);
+      var bits = entryBits(entry);
+      if (!bits.name && !bits.match && !bits.instagram) return;
+      var labels = [bits.match, bits.name].filter(Boolean);
       var found = null;
-      var i;
-      for (i = 0; i < pool.length; i++) {
+      var i, j;
+      for (i = 0; i < pool.length && !found; i++) {
         var s = pool[i];
         var key = standKey(s);
         if (used[key]) continue;
-        var id = s.id == null ? "" : String(s.id).trim();
-        var slug = s.slug == null ? "" : String(s.slug).trim();
-        var idHit = id && (id === raw || norm(id) === want);
-        var slugHit = slug && (norm(slug) === want || slugify(slug) === wantSlug);
-        var nameHit = norm(s.name) === want || slugify(s.name) === wantSlug;
-        if (idHit || slugHit || nameHit) { found = s; break; }
+        for (j = 0; j < labels.length; j++) {
+          if (textHit(labels[j], s)) { found = s; break; }
+        }
+        if (!found && bits.instagram) {
+          var wantHandle = igHandle(bits.instagram);
+          var handles = standHandles(s);
+          for (j = 0; j < handles.length; j++) {
+            if (sameHandle(wantHandle, handles[j])) { found = s; break; }
+          }
+        }
       }
-      if (!found) missing.push(raw);
-      else {
+      if (!found) {
+        missing.push(bits.instagram ? { name: bits.name, instagram: bits.instagram } : bits.name);
+      } else {
         used[standKey(found)] = 1;
+        if (bits.name) found.crawlName = bits.name;
+        if (bits.instagram) found.crawlInstagram = bits.instagram;
         matched.push(found);
       }
     });
