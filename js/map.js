@@ -308,8 +308,7 @@ function boot(stands) {
     var holder = document.getElementById("fsmap");
     if (holder) {
       holder.className = "fsmap-off";
-      holder.innerHTML = '<p class="fsfail">The interactive map did not load. ' +
-        'Every stand is listed below with directions.</p>';
+      holder.innerHTML = '<p class="fsfail">The map didn’t load. Every stand is listed below.</p>';
     }
   }
 
@@ -357,8 +356,7 @@ function boot(stands) {
                    .addTo(group);
     });
 
-    countEl.textContent = shown.length + (shown.length === 1 ? " stand" : " stands") +
-      (plotted < shown.length ? " · " + plotted + " with pins so far" : "");
+    countEl.textContent = shown.length + (shown.length === 1 ? " stand" : " stands");
 
     /* Frame whatever is actually showing rather than trusting a fixed zoom —
        otherwise one outlying stand leaves the rest in a heap in the middle. */
@@ -431,7 +429,7 @@ function fail(msg) {
   function useJSON() {
     fetch(FALLBACK).then(function (r) { return r.json(); })
       .then(function (d) { boot(d.stands || []); })
-      .catch(function () { fail("The map could not load."); });
+      .catch(function () { fail("The map didn’t load."); });
   }
 
   function useLive() {

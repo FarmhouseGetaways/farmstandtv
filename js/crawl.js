@@ -24,10 +24,33 @@
     else if (el && empty) el.textContent = empty;
   }
 
+  function standsOpen(pack) {
+    return !!(CrawlLogic.previewBase() || (pack && pack.showStands));
+  }
+
   function show(pack) {
     fillFact("tbd-date", pack.date, "Coming soon");
     fillFact("tbd-time", pack.time, "Coming soon");
     fillFact("tbd-prizes", pack.prizes, "");
+
+    var open = standsOpen(pack);
+    var soon = document.getElementById("crawl-soon");
+    if (soon) soon.hidden = open;
+    Array.prototype.forEach.call(document.querySelectorAll(".needs-stands"), function (el) {
+      el.hidden = !open;
+    });
+    var base = CrawlLogic.previewBase();
+    if (base) {
+      Array.prototype.forEach.call(document.querySelectorAll('a[href="/crawl2026"], a[href="/crawl2026/"]'), function (a) {
+        a.setAttribute("href", base + "/");
+      });
+    }
+    if (open) {
+      var lede = document.getElementById("crawl-lede");
+      if (lede) lede.textContent = "The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit Ramona’s farm stands, all decorated for the holidays and stocked with local goodies.";
+      var tour = document.getElementById("tour-link");
+      if (tour && base) tour.href = base + "/map?start=1";
+    }
 
     if (!pack.placeholder) {
       var note = document.getElementById("lineup-note");
@@ -37,11 +60,9 @@
       });
     }
 
+    if (!open) return;
+
     var total = pack.matched.length + pack.missing.length;
-    var count = document.getElementById("crawl-count");
-    if (count) {
-      count.textContent = total === 1 ? "1 stand" : total + " stands";
-    }
 
     function card(s, i, unmatched) {
       var name = unmatched ? (s.name || String(s)) : (s.crawlName || s.name);
@@ -52,7 +73,7 @@
       if (!unmatched && s.hours) bits.push('<p class="crawl-hours">' + esc(s.hours) + "</p>");
       if (!unmatched && s.address) bits.push('<p class="crawl-addr">' + esc(s.address) + "</p>");
       if (!unmatched && s.sells) bits.push('<p class="crawl-sells">' + esc(s.sells) + "</p>");
-      if (unmatched) bits.push('<p class="crawl-addr">Not on the tour map yet. We don’t have an address for this one.</p>');
+      if (unmatched) bits.push('<p class="crawl-addr">Not on the map yet.</p>');
       var links = [];
       function add(href, label) {
         var u = CrawlLogic.safeUrl(href);
@@ -62,7 +83,8 @@
       }
       if (!unmatched && CrawlLogic.located(s)) {
         bits.push('<p class="crawl-links">');
-        bits.push('<a href="/crawl2026/map#' + esc(CrawlLogic.slugify(s.name)) + '">Show on the map</a>');
+        var mapBase = (CrawlLogic.previewBase() || "/crawl2026") + "/map";
+        bits.push('<a href="' + mapBase + '#' + esc(CrawlLogic.slugify(s.name)) + '">Show on the map</a>');
       } else {
         bits.push('<p class="crawl-links">');
       }
@@ -85,7 +107,7 @@
     }
 
     if (!total) {
-      list.innerHTML = '<li class="crawl-empty">We couldn’t find the stands for this crawl. Try refreshing the page.</li>';
+      list.innerHTML = '<li class="crawl-empty">Refresh the page.</li>';
     } else {
       list.innerHTML = pack.matched.map(function (s, i) { return card(s, i, false); }).join("") +
         pack.missing.map(function (m, i) {
@@ -99,7 +121,7 @@
   }
 
   function fail() {
-    list.innerHTML = '<li class="crawl-empty">The stands didn’t load. Refresh the page, or see <a href="/maps">the full map</a>.</li>';
+    list.innerHTML = '<li class="crawl-empty">Refresh the page, or open <a href="/maps">the Ramona map</a>.</li>';
   }
 
   CrawlData.loadCrawl().then(show).catch(fail);

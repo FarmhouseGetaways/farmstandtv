@@ -12,7 +12,6 @@
   gtag('config', 'G-Q1BMT5J9KE');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
 <title>Ramona Farm Stand Christmas Crawl | Farmstand.TV</title>
 <meta name="description" content="The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, 2026, from 9 AM to 5 PM. Visit the farm stands in any order.">
 <link rel="canonical" href="https://farmstandtv.com/crawl2026">
@@ -31,7 +30,7 @@
 if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
 </script>
 <link rel="stylesheet" href="/css/site.css?v=20261127b">
-<link rel="stylesheet" href="/css/crawl.css?v=20261127f">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127g">
 <script src="/js/scroll-progress.js" defer></script>
 </head>
 <body class="crawl">
@@ -42,6 +41,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     <a class="wordmark" href="/"><img src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV"></a>
     <nav class="nav" aria-label="Main">
       <a href="/maps">The Map</a>
+      <a href="/crawl2026" aria-current="page">The Crawl</a>
       <a href="/tours">Watch</a>
       <a href="/submit">Add a Stand</a>
       <a href="/about">About</a>
@@ -68,7 +68,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
           <svg viewBox="0 0 48 48" width="42" height="42"><path fill="#7E1E2E" d="M6 22 24 8l18 14v2H6z"/><rect x="10" y="24" width="28" height="16" fill="#F4E2C4"/><rect x="20" y="30" width="8" height="10" fill="#6B3A22"/><rect x="14" y="28" width="5" height="5" fill="#7EB6D6"/></svg>
         </div>
       </div>
-      <p class="lede">The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit as many of the 14 farm stands below as you like, in any order. Each one is decorated for the holidays and stocked with local goodies. Tap Start the tour and the map will take you from stand to stand.</p>
+      <p class="lede" id="crawl-lede">The Ramona Farm Stand Christmas Crawl is Saturday and Sunday, December 19 and 20, from 9 AM to 5 PM. Visit Ramona’s farm stands, all decorated for the holidays and stocked with local goodies. The list of stands is coming soon.</p>
       <div class="date-show">
         <p class="date-kicker">Saturday &amp; Sunday</p>
         <div class="cal-pair">
@@ -99,7 +99,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     </div>
   </section>
 
-  <section class="band crawl-how scallop chan" data-ch="02">
+  <section class="band crawl-how scallop chan needs-stands" data-ch="02" hidden>
     <div class="wrap rv">
       <span class="kicker">On December 19 and 20</span>
       <h2 class="display">How the crawl <em class="lit">works.</em></h2>
@@ -107,47 +107,49 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
         <li>
           <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 9.5 12 6l8 3.5L27 6v16.5L20 26l-8-3.5L5 26V9.5z"/><path d="M12 6v16.5M20 9.5V26"/></svg></span>
           <h3>Open the map.</h3>
-          <p>This map shows only the stands on the crawl. Every other stand in Ramona is on <a href="/maps">the main map</a>.</p>
         </li>
         <li>
           <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M16 28s8-8.2 8-14a8 8 0 1 0-16 0c0 5.8 8 14 8 14z"/><circle cx="16" cy="14" r="2.4"/></svg></span>
-          <h3>Start the tour.</h3>
-          <p>Your phone asks where you are, then shows you on the map. The suggested order starts at Mini Barn Market. Press and hold a stop and drag it to change the order.</p>
+          <h3>Tap Start the tour.</h3>
         </li>
         <li>
           <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="16" cy="16" r="11"/><path d="M10 16.5 14 20.5 22 12"/></svg></span>
-          <h3>Go to the next stand.</h3>
-          <p>You’ll see how far it is and a rough driving time. When you arrive, that stand gets a stamp, then the next one comes up. Your stamps stay on this phone if you leave and come back. The screen tries to stay on while you drive.</p>
+          <h3>Drive to the next stand.</h3>
         </li>
         <li>
           <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 16h16"/><path d="M16 8l8 8-8 8"/></svg></span>
-          <h3>Get directions.</h3>
-          <p>Tap Directions. Your phone’s map (Google Maps or Apple Maps) takes you turn by turn to the next stand.</p>
+          <h3>Tap Directions to open Google Maps or Apple Maps.</h3>
         </li>
       </ol>
     </div>
   </section>
 
-  <section class="band crawl-lineup scallop chan" data-ch="03">
+  <section class="band crawl-soon scallop chan" id="crawl-soon" data-ch="02">
+    <div class="wrap centered rv">
+      <span class="kicker">The stands</span>
+      <h2 class="display">Coming <em class="lit">soon.</em></h2>
+      <p class="lede">The list of farm stands is coming soon. More stands are joining every week.</p>
+    </div>
+  </section>
+
+  <section class="band crawl-lineup scallop chan needs-stands" data-ch="03" hidden>
     <div class="wrap rv">
       <span class="kicker">The stands</span>
-      <h2 class="display">The 14 stands <em class="lit">on the crawl.</em></h2>
+      <h2 class="display">The stands <em class="lit">on the crawl.</em></h2>
       <p class="lede" id="lineup-note">Here are the stands taking part, with their address and hours.</p>
-      <p id="crawl-count" class="crawl-count">Loading the stands&hellip;</p>
       <p id="crawl-missing" class="crawl-missing" hidden></p>
-      <noscript><p>The stand list needs JavaScript. The full map is at <a href="/maps">/maps</a>.</p></noscript>
       <ul id="crawl-stands" class="crawl-cards"></ul>
       <p class="crawl-more">And more joining every week.</p>
     </div>
   </section>
 
-  <section class="band crawl-cta scallop chan" data-ch="04">
+  <section class="band crawl-cta scallop chan needs-stands" data-ch="04" hidden>
     <div class="wrap centered rv">
-      <span class="kicker">No sign-up</span>
+      <span class="kicker">On your phone</span>
       <h2 class="display">Start the tour.</h2>
-      <p class="lede">This phone keeps your stamps and your order if you leave and come back. We’ll ask to use your location.</p>
+      <p class="lede">Tap Start the tour.</p>
       <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn-go" href="/crawl2026/map?start=1">Start the tour</a>
+        <a class="btn btn-go" id="tour-link" href="/crawl2026/map?start=1">Start the tour</a>
         <a class="btn btn-line" href="/maps">The full Ramona map</a>
       </div>
     </div>
@@ -166,6 +168,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
         <h2>The map</h2>
         <ul>
           <li><a href="/maps">The Ramona Farmstand Map</a></li>
+          <li><a href="/crawl2026">Christmas Crawl</a></li>
           <li><a href="/downloads/Ramona-Farmstand-Map.pdf">Printable version</a></li>
           <li><a href="/submit">Add a stand</a></li>
         </ul>

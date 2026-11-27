@@ -43,6 +43,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     <a class="wordmark" href="/"><img src="/images/logo.png" width="1024" height="1024" alt="Farmstand.TV"></a>
     <nav class="nav" aria-label="Main">
       <a href="/maps">The Map</a>
+      <a href="/crawl2026">The Crawl</a>
       <a href="/tours">Watch</a>
       <a href="/submit">Add a Stand</a>
       <a href="/about">About</a>
@@ -55,7 +56,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     <span class="kicker">Got it</span>
     <h1 class="mega" style="max-width:15ch;margin-inline:auto;">We will take it <em class="lit">from here.</em></h1>
     <p class="lede" id="t-next">Someone reads every submission, and we will come back to you.
-      Getting a stand onto the digital map usually takes a day or two &mdash; we
+      Getting a stand onto the map usually takes a day or two &mdash; we
       like to come by and see a place before it goes on.</p>
     <p class="lede" id="t-paper">If you are here in Ramona, you go on the illustrated map as
       well. That one is redrawn every quarter, starting at the new year, so
@@ -80,6 +81,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
         <h2>The map</h2>
         <ul>
           <li><a href="/maps">The Ramona Farmstand Map</a></li>
+          <li><a href="/crawl2026">Christmas Crawl</a></li>
           <li><a href="/downloads/Ramona-Farmstand-Map.pdf">Printable version</a></li>
           <li><a href="/submit">Add a stand</a></li>
         </ul>
@@ -162,7 +164,7 @@ function ytFallback(img, loaded) {
     if (sessionStorage.getItem("fstv-update") !== "1") return;
     sessionStorage.removeItem("fstv-update");
     document.getElementById("t-next").textContent =
-      "Someone reads every update. Once we confirm it is you, it replaces your listing on the digital map. If anything does not match what we have on file, we will call the stand first.";
+      "Someone reads every update. Once we confirm it is you, it replaces your listing on the map. If anything does not match what we have on file, we will call the stand first.";
     document.getElementById("t-paper").textContent =
       "The illustrated map is redrawn every quarter, starting at the new year, so changes reach the paper version at the next redraw.";
   } catch (err) { /* storage blocked: the general wording still holds */ }

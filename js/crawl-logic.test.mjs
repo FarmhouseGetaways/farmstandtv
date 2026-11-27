@@ -104,6 +104,7 @@ test("the crawl lineup matches stands we already have an address for", function 
   assert.match(config.prizes, /#RamonaFarmStandCrawl/);
   assert.equal(config.participants.length, 14);
   assert.equal(config.firstStop, "mini-barn-market");
+  assert.equal(config.showStands, false);
   var extra = [
     { name: "The Coop", lat: 33.0106976, lng: -116.87, instagram: "https://www.instagram.com/Instathe_coop_farm_stand/" },
     { name: "Magnolia Ln Market", lat: 33.0516902, lng: -116.86 },

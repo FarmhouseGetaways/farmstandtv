@@ -490,6 +490,10 @@
 .crawl-cta .btn-go:hover { background: #fff; color: #1A1408; }
 .crawl-cta .btn-line { border-color: rgba(247, 244, 234, .45); color: #F7F4EA; }
 .crawl-cta .btn-line:hover { border-color: #fff; color: #fff; }
+.crawl-soon { color: #F7F4EA; text-align: center; }
+.crawl-soon .kicker, .crawl-soon em.lit { color: #F0D78C; }
+.crawl-soon .display { color: #F7F4EA; }
+.crawl-soon .lede { color: #F7F4EA; max-width: 28rem; margin-inline: auto; }
 
 /* ---------- section bands ---------- */
 .crawl .display {
@@ -506,6 +510,7 @@
 .crawl-how.scallop { z-index: 2; --bump: #7E1E2E; --dot: #F0D78C; }
 .crawl-lineup.scallop { z-index: 3; --bump: #10241A; --dot: #F0D78C; }
 .crawl-cta.scallop { z-index: 4; --bump: #7E1E2E; --dot: #F7F4EA; }
+.crawl-soon.scallop { z-index: 2; --bump: #7E1E2E; --dot: #F0D78C; }
 .scallop:not(.crawl-hero) {
   background-color: transparent;
   background-image:

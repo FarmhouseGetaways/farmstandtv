@@ -18,8 +18,32 @@
   to = "/.netlify/functions/emailoctopus-status"
   status = 200
 
+# Private crawl preview. Same pages as /crawl2026, at a path that is not
+# linked, not in the sitemap, and not guessable. Do not add this path to
+# any page.
+[[redirects]]
+  from = "/crawl2026-preview-h4k9mq2x/map"
+  to = "/crawl2026/map.html"
+  status = 200
+
+[[redirects]]
+  from = "/crawl2026-preview-h4k9mq2x/map/"
+  to = "/crawl2026/map.html"
+  status = 200
+
+[[redirects]]
+  from = "/crawl2026-preview-h4k9mq2x"
+  to = "/crawl2026/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/crawl2026-preview-h4k9mq2x/"
+  to = "/crawl2026/index.html"
+  status = 200
+
 # Christmas Crawl. Pretty URLs already serve crawl2026/index.html at
 # /crawl2026; these keep /crawl2026 and /crawl2026/map explicit.
+# The public map sends people back to /crawl2026 while showStands is false.
 [[redirects]]
   from = "/crawl2026/map"
   to = "/crawl2026/map.html"

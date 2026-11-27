@@ -369,6 +369,16 @@
     return u;
   }
 
+  /* The private test page is an unguessable path that rewrites to these
+     same files. The token lives in netlify.toml, not in the public JSON. */
+  function previewBase() {
+    try {
+      var path = (typeof location !== "undefined" && location && location.pathname) || "";
+      var m = String(path).match(/\/crawl2026-preview-[a-z0-9]{8}/);
+      return m ? m[0] : "";
+    } catch (e) { return ""; }
+  }
+
   function telHref(phone) {
     var d = String(phone == null ? "" : phone).replace(/[^0-9+]/g, "");
     return d ? "tel:" + d : "";
@@ -395,6 +405,7 @@
     estimateSeconds: estimateSeconds,
     shouldArrive: shouldArrive,
     safeUrl: safeUrl,
-    telHref: telHref
+    telHref: telHref,
+    previewBase: previewBase
   };
 });

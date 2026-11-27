@@ -205,7 +205,7 @@
     if (typeof L === "undefined" || !el.map) {
       if (el.map) {
         el.map.className = "fsmap-off";
-        el.map.innerHTML = '<p class="fsfail">The map didn’t load. The list below still works, and Directions opens your phone’s map.</p>';
+        el.map.innerHTML = '<p class="fsfail">The map didn’t load. The list below still works. Tap Directions.</p>';
       }
       return;
     }
@@ -484,7 +484,7 @@
     updateHeading(here);
     state.user = here;
     if (state.waitTimer) { clearTimeout(state.waitTimer); state.waitTimer = null; }
-    if (el.status && /Finding you|Still looking|can’t see where|Location is off/.test(el.status.textContent || "")) setStatus("");
+    if (el.status && /Finding you|Tap Directions anytime|can’t see where/.test(el.status.textContent || "")) setStatus("");
     drawUser();
     updateLegReadout();
     maybeReroute();
@@ -496,11 +496,11 @@
     /* A timeout between fixes is normal, and a later error must not wipe a
        good position with a scary line. Only a hard refusal is worth saying. */
     if (err && err.code === 1) {
-      setStatus("Location is off. You can stamp a stop yourself, or tap Directions.");
+      setStatus("We can’t see where you are. Tap Directions, or stamp this stop when you get there.");
       return;
     }
     if (!state.user) {
-      setStatus("Still looking for you. You can tap Directions anytime.");
+      setStatus("Tap Directions anytime.");
     }
   }
 
@@ -508,7 +508,7 @@
     if (state.waitTimer) clearTimeout(state.waitTimer);
     state.waitTimer = setTimeout(function () {
       if (state.active && !state.user) {
-        setStatus("We still can’t see where you are. Tap Directions, or stamp the stop when you arrive.");
+        setStatus("We can’t see where you are. Tap Directions, or stamp this stop when you get there.");
       }
     }, 12000);
   }
@@ -533,7 +533,7 @@
     requestWake();
     render();
     if (!navigator.geolocation) {
-      setStatus("This phone can’t share your location. Tap Directions, or stamp each stop when you arrive.");
+      setStatus("Tap Directions, or stamp each stop when you arrive.");
       refreshRoute();
       return;
     }
@@ -564,7 +564,7 @@
     state.active = false;
     stopWatch();
     save();
-    setStatus("Tour paused. Your stamps are still on this phone.");
+    setStatus("Tour paused.");
     render();
     refreshRoute();
   }
@@ -586,7 +586,7 @@
     if (!el.meta) return;
     var fig = legFigures();
     if (!fig) {
-      el.meta.textContent = state.active ? "We’ll show how far it is once we find you." : "Distance shows after you start.";
+      el.meta.textContent = "";
       return;
     }
     el.meta.textContent = CrawlLogic.formatMiles(fig.meters) + " \u00b7 " + CrawlLogic.formatEta(fig.seconds);
@@ -635,7 +635,7 @@
       state.active = false;
       stopWatch();
       save();
-      setStatus("You’ve stamped every stand on this phone.");
+      setStatus("You’ve visited every stand.");
     }
     render();
     maybeArrive();
@@ -714,13 +714,13 @@
       setStatus("");
       cb(state.user);
     }, function () {
-      setStatus("No location yet, so we’ll keep this order.");
+      setStatus("We’ll keep this order.");
       cb(null);
     }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 5000 });
   }
 
   function startOver() {
-    if (!window.confirm("Clear your stamps and start fresh on this phone?")) return;
+    if (!window.confirm("Start over?")) return;
     stopWatch();
     state.active = false;
     state.visited = {};
@@ -778,21 +778,21 @@
     var done = complete();
 
     if (el.progress) {
-      el.progress.textContent = state.stands.length
-        ? (nVis + " of " + state.stands.length + " stamped")
-        : "No stands on the list";
+      el.progress.textContent = nVis
+        ? (nVis === 1 ? "1 done" : nVis + " done")
+        : "";
     }
 
     if (el.idle) {
       if (!state.stands.length) {
-        el.idle.textContent = "We couldn’t find the stands for this crawl. Try refreshing the page.";
+        el.idle.textContent = "Refresh the page.";
         show(el.idle, true);
       } else if (done) {
-        el.idle.textContent = "You’ve stamped every stand. Start over clears them on this phone.";
+        el.idle.textContent = "You’ve visited every stand.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "Tap Start the tour and you’ll show up on the map. The suggested order starts at " +
-          (state.original.length ? shown(state.original[0]) : "the first stop") + ". You can drag the stops into any order.";
+        el.idle.textContent = "Tap Start the tour. The drive starts at " +
+          (state.original.length ? shown(state.original[0]) : "the first stop") + ".";
         show(el.idle, true);
       } else {
         show(el.idle, false);
@@ -801,7 +801,7 @@
 
     show(el.leg, !!next);
     if (next && el.name) {
-      el.kicker.textContent = (!state.active && nVis === 0) ? "First on the list" : "Next stop";
+      el.kicker.textContent = (!state.active && nVis === 0) ? "First stop" : "Next stop";
       el.name.textContent = shown(next);
       el.addr.textContent = next.address || "";
       el.hours.textContent = next.hours || "";
@@ -830,7 +830,7 @@
         var cls = (vis ? "is-visited" : "") + (isNext ? " is-next" : "");
         var label = shown(s) + (vis
           ? ". Stamped."
-          : ". Press and hold to drag into a new order. Alt and the arrow keys move it.");
+          : ". Press and hold to move it. Alt and the arrow keys move it.");
         var side = vis ? '<span class="ord-stamp">Stamped</span>' : "";
         return '<li class="' + cls + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
           '<span class="ord-num">' + (i + 1) + "</span>" +
@@ -865,7 +865,7 @@
     if (el.suggest) el.suggest.addEventListener("click", function () {
       applySuggestion();
       var who = state.stands.length ? shown(state.stands[0]) : "the first stop";
-      setStatus("This order starts at " + who + ". You can still change it.");
+      setStatus("Starts at " + who + ". Press and hold a stop to move it.");
     });
     if (el.reset) el.reset.addEventListener("click", startOver);
     if (el.recenter) el.recenter.addEventListener("click", recenter);
@@ -1148,7 +1148,7 @@
     }
     if (el.missing && state.missing.length) {
       el.missing.hidden = false;
-      el.missing.textContent = "We couldn’t find these on the map: " +
+      el.missing.textContent = "Not on the map yet: " +
         state.missing.map(function (m) { return m && m.name ? m.name : String(m); }).join(", ") + ".";
     }
     normalize();
@@ -1168,11 +1168,23 @@
 
   function fail() {
     grab();
-    if (el.progress) el.progress.textContent = "The stands didn’t load.";
-    if (el.idle) el.idle.textContent = "Refresh the page, or open the full map from The Map.";
+    if (el.progress) el.progress.textContent = "";
+    if (el.idle) el.idle.textContent = "Refresh the page.";
   }
 
   grab();
-  if (el.progress) el.progress.textContent = "Loading the stands…";
-  CrawlData.loadCrawl().then(boot).catch(fail);
+  if (el.progress) el.progress.textContent = "Loading…";
+  CrawlData.loadCrawl().then(function (pack) {
+    var base = CrawlLogic.previewBase();
+    if (!base && !(pack && pack.showStands)) {
+      location.replace("/crawl2026");
+      return;
+    }
+    if (base) {
+      Array.prototype.forEach.call(document.querySelectorAll('a[href="/crawl2026"], a[href="/crawl2026/"]'), function (a) {
+        a.setAttribute("href", base + "/");
+      });
+    }
+    boot(pack);
+  }).catch(fail);
 })();
