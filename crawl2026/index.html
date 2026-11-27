@@ -25,16 +25,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Instrument+Serif:ital@0;1&family=Karla:ital,wght@0,400;0,500;0,700;1,400&family=Rye&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-<meta name="theme-color" content="#14281C">
+<!-- Launch day: set start_url in /crawl2026/manifest.webmanifest to /crawl2026 when showStands is true. -->
+<link rel="manifest" href="/crawl2026/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Xmas Crawl">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#7E1E2E">
 <script>
 if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.className+=' js';
 </script>
 <link rel="stylesheet" href="/css/site.css?v=20261127b">
-<link rel="stylesheet" href="/css/crawl.css?v=20261127g">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127i">
 <script src="/js/scroll-progress.js" defer></script>
 </head>
 <body class="crawl">
 <a class="skip" href="#main">Skip to content</a>
+<div id="install-tip" class="install-tip" hidden>
+  <p id="install-text">Add Xmas Crawl to your home screen.</p>
+  <button type="button" id="install-go" class="install-go" hidden>Add</button>
+  <button type="button" id="install-x" class="install-x" aria-label="Dismiss">×</button>
+</div>
 
 <header class="masthead">
   <div class="wrap masthead-inner">
@@ -99,28 +110,27 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     </div>
   </section>
 
-  <section class="band crawl-how scallop chan needs-stands" data-ch="02" hidden>
-    <div class="wrap rv">
+  <section class="band crawl-road scallop chan needs-stands" data-ch="02" hidden>
+    <div class="wrap">
       <span class="kicker">On December 19 and 20</span>
       <h2 class="display">How the crawl <em class="lit">works.</em></h2>
-      <ol class="step-cards">
+      <ol class="road">
         <li>
-          <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 9.5 12 6l8 3.5L27 6v16.5L20 26l-8-3.5L5 26V9.5z"/><path d="M12 6v16.5M20 9.5V26"/></svg></span>
-          <h3>Open the map.</h3>
+          <span class="bulb" aria-hidden="true"></span>
+          <p>Tap Start the tour</p>
         </li>
         <li>
-          <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M16 28s8-8.2 8-14a8 8 0 1 0-16 0c0 5.8 8 14 8 14z"/><circle cx="16" cy="14" r="2.4"/></svg></span>
-          <h3>Tap Start the tour.</h3>
+          <span class="bulb" aria-hidden="true"></span>
+          <p>Follow the map to each stand</p>
         </li>
         <li>
-          <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><circle cx="16" cy="16" r="11"/><path d="M10 16.5 14 20.5 22 12"/></svg></span>
-          <h3>Drive to the next stand.</h3>
-        </li>
-        <li>
-          <span class="step-ico" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M6 16h16"/><path d="M16 8l8 8-8 8"/></svg></span>
-          <h3>Tap Directions to open Google Maps or Apple Maps.</h3>
+          <span class="bulb" aria-hidden="true"></span>
+          <p>Collect a stamp at every stop</p>
+          <div class="punch" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
         </li>
       </ol>
+      <a class="tour-go" id="tour-link" href="/crawl2026/map?start=1">Start the tour</a>
+      <p class="road-alt"><a href="/maps">The full Ramona map</a></p>
     </div>
   </section>
 
@@ -143,17 +153,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
     </div>
   </section>
 
-  <section class="band crawl-cta scallop chan needs-stands" data-ch="04" hidden>
-    <div class="wrap centered rv">
-      <span class="kicker">On your phone</span>
-      <h2 class="display">Start the tour.</h2>
-      <p class="lede">Tap Start the tour.</p>
-      <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn-go" id="tour-link" href="/crawl2026/map?start=1">Start the tour</a>
-        <a class="btn btn-line" href="/maps">The full Ramona map</a>
-      </div>
-    </div>
-  </section>
 </main>
 
 <footer class="foot">
@@ -238,5 +237,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.docum
 <script src="/js/crawl-logic.js"></script>
 <script src="/js/crawl-data.js"></script>
 <script src="/js/crawl.js"></script>
+<script src="/js/crawl-install.js"></script>
 </body>
 </html>
