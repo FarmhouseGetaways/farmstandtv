@@ -27,62 +27,75 @@
   function show(pack) {
     fillFact("tbd-date", pack.date, "Coming soon");
     fillFact("tbd-time", pack.time, "Coming soon");
-    fillFact("tbd-start", pack.start, "Coming soon");
-    fillFact("tbd-prizes", pack.prizes, "Coming soon");
+    fillFact("tbd-prizes", pack.prizes, "");
 
     if (!pack.placeholder) {
       var note = document.getElementById("lineup-note");
-      if (note) note.textContent = "These are the stands on the crawl. The name, the address, and the hours are the ones already on the farm stand map.";
+      if (note) note.textContent = "These are the stands on the crawl so far. The name, the address, and the hours are the ones already on the farm stand map.";
       Array.prototype.forEach.call(document.querySelectorAll("[data-ph]"), function (el) {
         el.parentNode.removeChild(el);
       });
     }
 
+    var total = pack.matched.length + pack.missing.length;
     var count = document.getElementById("crawl-count");
     if (count) {
-      count.textContent = pack.matched.length === 1
-        ? "1 stand on the list"
-        : pack.matched.length + " stands on the list";
+      count.textContent = total === 1 ? "1 stand so far" : total + " stands so far";
     }
 
-    if (!pack.matched.length) {
-      list.innerHTML = '<li class="crawl-empty">We couldn’t find the stands for this crawl. Try refreshing the page.</li>';
-    } else {
-      list.innerHTML = pack.matched.map(function (s, i) {
-        var bits = ['<li class="crawl-card">',
-          '<span class="crawl-num">' + (i + 1) + "</span>",
-          "<h3>" + esc(s.name) +
-            (s.ours ? ' <span class="fsrow-ours">Ours</span>' : "") + "</h3>"];
-        if (s.hours) bits.push('<p class="crawl-hours">' + esc(s.hours) + "</p>");
-        if (s.address) bits.push('<p class="crawl-addr">' + esc(s.address) + "</p>");
-        if (s.sells) bits.push('<p class="crawl-sells">' + esc(s.sells) + "</p>");
-        var links = [];
-        function add(href, label) {
-          var u = CrawlLogic.safeUrl(href);
-          if (!u) return;
-          if (links.some(function (x) { return x.u === u; })) return;
-          links.push({ u: u, label: label });
-        }
-        add(s.url, linkLabel(s.url || ""));
-        add(s.instagram, "Instagram");
-        add(s.facebook, "Facebook");
-        var tel = CrawlLogic.telHref(s.phone);
+    function card(s, i, unmatched) {
+      var name = unmatched ? (s.name || String(s)) : (s.crawlName || s.name);
+      var bits = ['<li class="crawl-card' + (unmatched ? " crawl-unmatched" : "") + '">',
+        '<span class="crawl-num">' + (i + 1) + "</span>",
+        "<h3>" + esc(name) +
+          (!unmatched && s.ours ? ' <span class="fsrow-ours">Ours</span>' : "") + "</h3>"];
+      if (!unmatched && s.hours) bits.push('<p class="crawl-hours">' + esc(s.hours) + "</p>");
+      if (!unmatched && s.address) bits.push('<p class="crawl-addr">' + esc(s.address) + "</p>");
+      if (!unmatched && s.sells) bits.push('<p class="crawl-sells">' + esc(s.sells) + "</p>");
+      if (unmatched) bits.push('<p class="crawl-addr">Not on the tour map yet. We don’t have an address for this one.</p>');
+      var links = [];
+      function add(href, label) {
+        var u = CrawlLogic.safeUrl(href);
+        if (!u) return;
+        if (links.some(function (x) { return x.u === u; })) return;
+        links.push({ u: u, label: label });
+      }
+      if (!unmatched && CrawlLogic.located(s)) {
         bits.push('<p class="crawl-links">');
         bits.push('<a href="/crawl2026/map#' + esc(CrawlLogic.slugify(s.name)) + '">Show on the map</a>');
-        links.forEach(function (l) {
-          bits.push('<a href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.label) + "</a>");
-        });
+      } else {
+        bits.push('<p class="crawl-links">');
+      }
+      var ig = unmatched ? (s.instagram || "") : (s.crawlInstagram || "");
+      if (ig) add("https://www.instagram.com/" + String(ig).replace(/^@/, "") + "/", "Instagram");
+      else if (!unmatched) add(s.instagram, "Instagram");
+      if (!unmatched) {
+        add(s.url, linkLabel(s.url || ""));
+        add(s.facebook, "Facebook");
+      }
+      links.forEach(function (l) {
+        bits.push('<a href="' + esc(l.u) + '" target="_blank" rel="noopener">' + esc(l.label) + "</a>");
+      });
+      if (!unmatched) {
+        var tel = CrawlLogic.telHref(s.phone);
         if (tel) bits.push('<a href="' + esc(tel) + '">Call</a>');
-        bits.push("</p></li>");
-        return bits.join("");
-      }).join("");
+      }
+      bits.push("</p></li>");
+      return bits.join("");
+    }
+
+    if (!total) {
+      list.innerHTML = '<li class="crawl-empty">We couldn’t find the stands for this crawl. Try refreshing the page.</li>';
+    } else {
+      list.innerHTML = pack.matched.map(function (s, i) { return card(s, i, false); }).join("") +
+        pack.missing.map(function (m, i) {
+          var item = m && typeof m === "object" ? m : { name: String(m) };
+          return card(item, pack.matched.length + i, true);
+        }).join("");
     }
 
     var miss = document.getElementById("crawl-missing");
-    if (miss && pack.missing.length) {
-      miss.hidden = false;
-      miss.textContent = "We couldn’t find these on the map: " + pack.missing.join(", ") + ".";
-    }
+    if (miss) miss.hidden = true;
   }
 
   function fail() {

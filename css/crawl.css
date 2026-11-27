@@ -148,7 +148,16 @@
   max-width: 46rem;
   text-align: left;
 }
-@media (min-width: 48rem) { .tbd { grid-template-columns: repeat(4, 1fr); } }
+.tbd-when { max-width: 44rem; }
+@media (min-width: 48rem) {
+  .tbd.tbd-when { grid-template-columns: 1fr 1fr; }
+}
+.crawl-more {
+  margin: 1.1rem 0 0;
+  font-family: var(--display);
+  font-size: 1.45rem;
+  color: #8E2432;
+}
 .tbd div {
   border: 1px dashed rgba(228, 197, 106, .55);
   background: rgba(0, 0, 0, .18);
@@ -354,13 +363,63 @@ body.crawl-tour .masthead { flex-shrink: 0; }
   outline-offset: 2px;
 }
 
-.tour-order { list-style: none; padding: 0; margin: .4rem 0 0; }
+.reorder-hint {
+  margin: 1.05rem 0 0;
+  color: var(--ink-soft);
+  font-size: .92rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.tour-order {
+  list-style: none;
+  padding: 0;
+  margin: .35rem 0 0;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 .tour-order li {
   display: flex;
   align-items: center;
   gap: .45rem;
-  padding: .7rem 0;
+  padding: .7rem .15rem;
   border-top: 1px solid #E2DCC8;
+  background: transparent;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+html.is-reordering,
+html.is-reordering body {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+.tour-order li.is-lifted {
+  position: relative;
+  z-index: 5;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 14px 32px rgba(23, 26, 21, .22);
+  pointer-events: none;
+  touch-action: none;
+}
+.tour-order li:focus-visible {
+  outline: 3px solid #7E1E2E;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-order li.is-lifted { box-shadow: 0 0 0 2px #7E1E2E; }
 }
 .tour-order li.is-next { background: rgba(228, 197, 106, .35); margin-inline: -.45rem; padding-inline: .45rem; }
 .tour-order li.is-dragging { opacity: .45; pointer-events: none; }

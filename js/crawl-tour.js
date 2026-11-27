@@ -46,8 +46,6 @@
     stands: [],
     visited: {},
     active: false,
-    picking: false,
-    picked: [],
     missing: [],
     placeholder: true,
     user: null,
@@ -74,6 +72,8 @@
   var lastFit = null;
   var tileLayer = null;
   var drag = null;
+  var scrollRaf = 0;
+  var HOLD_MS = 360;
   var suppressClick = false;
   var el = {};
 
@@ -101,6 +101,7 @@
   }
 
   function keyOf(s) { return CrawlLogic.standKey(s); }
+  function shown(s) { return s ? (s.crawlName || s.name || "") : ""; }
   function isVis(s) { return !!state.visited[keyOf(s)]; }
 
   function visitedCount() {
@@ -274,7 +275,7 @@
   }
 
   function popupHtml(s) {
-    var bits = ['<div class="pop"><h3>' + esc(s.name) + "</h3>"];
+    var bits = ['<div class="pop"><h3>' + esc(shown(s)) + "</h3>"];
     if (s.sells) bits.push('<p class="pop-sells">' + esc(s.sells) + "</p>");
     if (s.hours) bits.push('<p class="pop-hours">' + esc(s.hours) + "</p>");
     if (s.address) bits.push('<p class="pop-addr">' + esc(s.address) + "</p>");
@@ -291,7 +292,7 @@
       s._marker = null;
       if (!CrawlLogic.located(s)) return;
       var kind = isVis(s) ? "visited" : (next && keyOf(next) === keyOf(s) ? "next" : "rest");
-      var marker = L.marker([s.lat, s.lng], { icon: pinIcon(i + 1, kind), title: s.name, zIndexOffset: kind === "next" ? 400 : 0 })
+      var marker = L.marker([s.lat, s.lng], { icon: pinIcon(i + 1, kind), title: shown(s), zIndexOffset: kind === "next" ? 400 : 0 })
         .bindPopup(popupHtml(s))
         .addTo(state.markers);
       s._marker = marker;
@@ -526,7 +527,6 @@
   function startWatch() {
     if (complete()) return;
     state.active = true;
-    state.picking = false;
     save();
     requestWake();
     render();
@@ -606,10 +606,10 @@
     normalize();
     save();
     var nxt = nextStop();
-    if (el.celName) el.celName.textContent = stand.name;
+    if (el.celName) el.celName.textContent = shown(stand);
     if (el.celDetail) {
       el.celDetail.textContent = nxt
-        ? "Next up is " + nxt.name + "."
+        ? "Next up is " + shown(nxt) + "."
         : "That was the last stand.";
     }
     if (el.celNext) el.celNext.textContent = nxt ? "On to the next stand" : "Done";
@@ -656,25 +656,9 @@
     var vis = state.stands.filter(isVis);
     var rest = state.stands.filter(function (s) { return !isVis(s); });
     state.stands = vis.concat(origin ? CrawlLogic.optimizeOrder(origin, rest) : rest);
-    state.picking = false;
-    state.picked = [];
     save();
     render();
     refreshRoute();
-  }
-
-  function applyPicked() {
-    normalize();
-    var vis = state.stands.filter(isVis);
-    var rest = state.stands.filter(function (s) { return !isVis(s); });
-    var by = {};
-    rest.forEach(function (s) { by[keyOf(s)] = s; });
-    var ordered = [];
-    state.picked.forEach(function (k) {
-      if (by[k]) { ordered.push(by[k]); delete by[k]; }
-    });
-    rest.forEach(function (s) { if (by[keyOf(s)]) ordered.push(s); });
-    state.stands = vis.concat(ordered);
   }
 
   function moveKey(key, dir) {
@@ -688,17 +672,6 @@
     var tmp = state.stands[i];
     state.stands[i] = state.stands[j];
     state.stands[j] = tmp;
-    save();
-    render();
-    refreshRoute();
-  }
-
-  function togglePick(key) {
-    if (state.visited[key]) return;
-    var i = state.picked.indexOf(key);
-    if (i >= 0) state.picked.splice(i, 1);
-    else state.picked.push(key);
-    applyPicked();
     save();
     render();
     refreshRoute();
@@ -753,8 +726,6 @@
     state.active = false;
     state.visited = {};
     state.stands = state.original.slice();
-    state.picking = false;
-    state.picked = [];
     state.celebrating = false;
     state.user = null;
     state.heading = null;
@@ -821,7 +792,7 @@
         el.idle.textContent = "You’ve stamped every stand. Start over clears them on this phone.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. We can suggest an order from where you are, or you can choose your own.";
+        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. We can suggest an order from where you are.";
         show(el.idle, true);
       } else {
         show(el.idle, false);
@@ -831,7 +802,7 @@
     show(el.leg, !!next);
     if (next && el.name) {
       el.kicker.textContent = (!state.active && nVis === 0) ? "First on the list" : "Next stop";
-      el.name.textContent = next.name;
+      el.name.textContent = shown(next);
       el.addr.textContent = next.address || "";
       el.hours.textContent = next.hours || "";
       show(el.hours, !!next.hours);
@@ -849,40 +820,21 @@
     if (el.start) el.start.textContent = nVis > 0 ? "Resume the tour" : "Start the tour";
     show(el.end, state.active && !done);
     show(el.suggest, !done && state.stands.length > 1);
-    show(el.pick, !done && unvisited().length > 1);
-    if (el.pick) {
-      el.pick.textContent = state.picking ? "Done" : "Choose my own order";
-      el.pick.setAttribute("aria-pressed", state.picking ? "true" : "false");
-    }
-    show(el.help, state.picking);
     show(el.recenter, !!state.map);
 
     if (el.order) {
-      el.order.classList.toggle("is-picking", state.picking);
-      var visSoFar = nVis;
       el.order.innerHTML = state.stands.map(function (s, i) {
         var key = keyOf(s);
         var vis = isVis(s);
         var isNext = next && keyOf(next) === key;
-        var canNudge = !vis && !state.picking;
         var cls = (vis ? "is-visited" : "") + (isNext ? " is-next" : "");
-        var handle = canNudge
-          ? '<button type="button" class="drag-handle" data-drag aria-label="Drag to move ' + esc(s.name) + '"></button>'
-          : "";
-        var side;
-        if (vis) side = '<span class="ord-stamp">Stamped</span>';
-        else if (state.picking) side = "";
-        else {
-          side = '<span class="ord-actions">' +
-            '<button type="button" class="nudge" data-up ' + (i <= visSoFar ? "disabled" : "") +
-              ' aria-label="Move ' + esc(s.name) + ' up">Up</button>' +
-            '<button type="button" class="nudge" data-down ' + (i >= state.stands.length - 1 ? "disabled" : "") +
-              ' aria-label="Move ' + esc(s.name) + ' down">Down</button></span>';
-        }
-        return '<li class="' + cls + '" data-key="' + esc(key) + '" data-visited="' + (vis ? "1" : "0") + '">' +
-          handle +
+        var label = shown(s) + (vis
+          ? ". Stamped."
+          : ". Press and hold to drag into a new order. Alt and the arrow keys move it.");
+        var side = vis ? '<span class="ord-stamp">Stamped</span>' : "";
+        return '<li class="' + cls + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
           '<span class="ord-num">' + (i + 1) + "</span>" +
-          '<span class="ord-text"><span class="ord-name">' + esc(s.name) +
+          '<span class="ord-text"><span class="ord-name">' + esc(shown(s)) +
             (s.ours ? ' <span class="fsrow-ours">Ours</span>' : "") + "</span>" +
             (s.address ? '<span class="ord-addr">' + esc(s.address) + "</span>" : "") +
           "</span>" + side + "</li>";
@@ -917,11 +869,6 @@
         setStatus("This order starts from where you are. You can still change it.");
       });
     });
-    if (el.pick) el.pick.addEventListener("click", function () {
-      state.picking = !state.picking;
-      if (state.picking) state.picked = [];
-      render();
-    });
     if (el.reset) el.reset.addEventListener("click", startOver);
     if (el.recenter) el.recenter.addEventListener("click", recenter);
     if (el.celNext) el.celNext.addEventListener("click", closeCelebrate);
@@ -931,57 +878,252 @@
       el.order.addEventListener("click", function (e) {
         if (suppressClick) { suppressClick = false; return; }
         var li = e.target.closest ? e.target.closest("li") : null;
-        if (!li) return;
+        if (!li || (e.target.closest && e.target.closest("button, a"))) return;
+        focusStand(li.getAttribute("data-key"));
+      });
+      el.order.addEventListener("keydown", function (e) {
+        if (!e.altKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+        var li = e.target.closest ? e.target.closest("li") : null;
+        if (!li || li.getAttribute("data-visited") === "1") return;
+        e.preventDefault();
         var key = li.getAttribute("data-key");
-        if (e.target.closest("[data-up]")) { moveKey(key, -1); return; }
-        if (e.target.closest("[data-down]")) { moveKey(key, 1); return; }
-        if (e.target.closest("[data-drag], button, a")) return;
-        if (state.picking) { togglePick(key); return; }
-        focusStand(key);
+        moveKey(key, e.key === "ArrowUp" ? -1 : 1);
+        focusRow(key);
       });
-      el.order.addEventListener("pointerdown", function (e) {
-        var handle = e.target.closest ? e.target.closest("[data-drag]") : null;
-        if (!handle || state.picking) return;
-        var row = handle.closest("li");
-        if (!row || row.getAttribute("data-visited") === "1") return;
-        drag = { pointer: e.pointerId, row: row, moved: false };
-        row.setPointerCapture(e.pointerId);
-        row.classList.add("is-dragging");
+      el.order.addEventListener("pointerdown", onOrderPointerDown);
+      el.order.addEventListener("pointermove", onOrderPointerMove);
+      el.order.addEventListener("pointerup", onOrderPointerUp);
+      el.order.addEventListener("pointercancel", onOrderPointerUp);
+      el.order.addEventListener("contextmenu", function (e) {
+        if (drag) e.preventDefault();
       });
-      el.order.addEventListener("pointermove", function (e) {
-        if (!drag || e.pointerId !== drag.pointer) return;
-        drag.moved = true;
-        var stack = document.elementsFromPoint ? document.elementsFromPoint(e.clientX, e.clientY) : [];
-        var over = null;
-        var i;
-        for (i = 0; i < stack.length; i++) {
-          var li = stack[i].closest ? stack[i].closest("#tour-order li") : null;
-          if (li && li !== drag.row && li.getAttribute("data-visited") !== "1") { over = li; break; }
-        }
-        if (!over) return;
-        var rect = over.getBoundingClientRect();
-        var after = e.clientY > rect.top + rect.height / 2;
-        if (after) over.parentNode.insertBefore(drag.row, over.nextSibling);
-        else over.parentNode.insertBefore(drag.row, over);
-      });
-      function endDrag(e) {
-        if (!drag || e.pointerId !== drag.pointer) return;
-        drag.row.classList.remove("is-dragging");
-        var moved = drag.moved;
-        drag = null;
-        if (moved) {
-          suppressClick = true;
-          commitDomOrder();
-          setTimeout(function () { suppressClick = false; }, 400);
-        }
-      }
-      el.order.addEventListener("pointerup", endDrag);
-      el.order.addEventListener("pointercancel", endDrag);
     }
+
+    document.addEventListener("touchmove", function (e) {
+      if (drag && drag.lifted && e.cancelable) e.preventDefault();
+    }, { passive: false });
 
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible" && state.active && !complete()) requestWake();
     });
+  }
+
+  /* Press-and-hold, then drag. Touch waits ~360ms so a scroll still works.
+     A mouse can drag as soon as it moves. The page does not scroll underneath
+     a lifted card; we scroll it ourselves when the finger nears the edge. */
+  function onOrderPointerDown(e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (e.target.closest && e.target.closest("button, a")) return;
+    var row = e.target.closest ? e.target.closest("#tour-order li") : null;
+    if (!row || row.getAttribute("data-visited") === "1") return;
+    if (drag && drag.lifted) return;
+    var rect = row.getBoundingClientRect();
+    drag = {
+      pointer: e.pointerId,
+      pointerType: e.pointerType || "mouse",
+      row: row,
+      x: e.clientX,
+      y: e.clientY,
+      yNow: e.clientY,
+      xNow: e.clientX,
+      offsetY: e.clientY - rect.top,
+      currentDY: 0,
+      lifted: false,
+      moved: false,
+      timer: setTimeout(liftRow, HOLD_MS)
+    };
+  }
+
+  function dist2(e) {
+    var dx = e.clientX - drag.x;
+    var dy = e.clientY - drag.y;
+    return dx * dx + dy * dy;
+  }
+
+  function liftRow() {
+    if (!drag || drag.lifted) return;
+    if (drag.timer) { clearTimeout(drag.timer); drag.timer = null; }
+    drag.lifted = true;
+    drag.row.classList.add("is-lifted");
+    document.documentElement.classList.add("is-reordering");
+    try { drag.row.setPointerCapture(drag.pointer); } catch (err) {}
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (err2) {}
+    stickRow();
+    autoScrollStart();
+  }
+
+  function cancelHold() {
+    if (!drag || drag.lifted) return;
+    if (drag.timer) clearTimeout(drag.timer);
+    drag = null;
+  }
+
+  function positions() {
+    var rows = el.order.children;
+    var out = [];
+    var i;
+    for (i = 0; i < rows.length; i++) out.push({ el: rows[i], top: rows[i].getBoundingClientRect().top });
+    return out;
+  }
+
+  function flipRows(prev) {
+    if (reduced) return;
+    var i;
+    for (i = 0; i < prev.length; i++) {
+      var node = prev[i].el;
+      if (!node || node.classList.contains("is-lifted")) continue;
+      var dy = prev[i].top - node.getBoundingClientRect().top;
+      if (!dy) continue;
+      node.style.transition = "none";
+      node.style.transform = "translateY(" + dy + "px)";
+      node.getBoundingClientRect();
+      node.style.transition = "transform .2s ease";
+      node.style.transform = "";
+    }
+  }
+
+  function renumberRows() {
+    if (!el.order) return;
+    var rows = el.order.children;
+    var seen = false;
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      var num = rows[i].querySelector(".ord-num");
+      if (num) num.textContent = String(i + 1);
+      var vis = rows[i].getAttribute("data-visited") === "1";
+      var isNext = !vis && !seen;
+      if (!vis) seen = true;
+      rows[i].classList.toggle("is-next", isNext);
+    }
+  }
+
+  function stickRow() {
+    if (!drag || !drag.lifted) return;
+    var rect = drag.row.getBoundingClientRect();
+    var layoutTop = rect.top - (drag.currentDY || 0);
+    var dy = drag.yNow - drag.offsetY - layoutTop;
+    drag.currentDY = dy;
+    drag.row.style.transform = "translateY(" + dy.toFixed(1) + "px) scale(1.03)";
+  }
+
+  function placeRow(x, y) {
+    if (!drag || !drag.lifted || !el.order) return;
+    drag.xNow = x;
+    drag.yNow = y;
+    var rows = el.order.children;
+    var spots = [];
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i] === drag.row) continue;
+      if (rows[i].getAttribute("data-visited") === "1") continue;
+      var r = rows[i].getBoundingClientRect();
+      spots.push({ el: rows[i], mid: r.top + r.height / 2 });
+    }
+    var target = null;
+    var after = false;
+    for (i = 0; i < spots.length; i++) {
+      if (y < spots[i].mid) { target = spots[i].el; break; }
+    }
+    if (!target && spots.length) {
+      target = spots[spots.length - 1].el;
+      after = true;
+    }
+    if (target) {
+      var parent = drag.row.parentNode;
+      var before = orderSig();
+      var prev = positions();
+      parent.insertBefore(drag.row, after ? target.nextSibling : target);
+      if (orderSig() !== before) {
+        renumberRows();
+        flipRows(prev);
+        drag.moved = true;
+      }
+    }
+    stickRow();
+  }
+
+  function orderSig() {
+    var rows = el.order.children;
+    var s = "";
+    var i;
+    for (i = 0; i < rows.length; i++) s += rows[i].getAttribute("data-key") + "\n";
+    return s;
+  }
+
+  function scroller() {
+    var sheet = document.getElementById("tour-sheet");
+    if (sheet && sheet.scrollHeight > sheet.clientHeight + 8) return sheet;
+    return window;
+  }
+
+  function autoScrollStart() {
+    if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    function frame() {
+      if (!drag || !drag.lifted) { scrollRaf = 0; return; }
+      var y = drag.yNow;
+      var margin = 72;
+      var maxStep = 16;
+      var dy = 0;
+      if (y < margin) dy = -Math.max(2, Math.ceil((margin - y) / margin * maxStep));
+      else if (y > window.innerHeight - margin) dy = Math.max(2, Math.ceil((y - (window.innerHeight - margin)) / margin * maxStep));
+      if (dy) {
+        var box = scroller();
+        if (box === window) window.scrollBy(0, dy);
+        else box.scrollTop += dy;
+        placeRow(drag.xNow, drag.yNow);
+      }
+      scrollRaf = requestAnimationFrame(frame);
+    }
+    scrollRaf = requestAnimationFrame(frame);
+  }
+
+  function onOrderPointerMove(e) {
+    if (!drag || e.pointerId !== drag.pointer) return;
+    if (!drag.lifted) {
+      if (drag.pointerType === "mouse") {
+        if (dist2(e) > 25) liftRow();
+      } else if (dist2(e) > 144) {
+        cancelHold();
+        return;
+      }
+      if (!drag || !drag.lifted) return;
+    }
+    if (e.cancelable) e.preventDefault();
+    placeRow(e.clientX, e.clientY);
+  }
+
+  function finishDrag() {
+    if (scrollRaf) { cancelAnimationFrame(scrollRaf); scrollRaf = 0; }
+    document.documentElement.classList.remove("is-reordering");
+    var info = drag;
+    drag = null;
+    if (!info) return;
+    if (info.timer) clearTimeout(info.timer);
+    var row = info.row;
+    if (!info.lifted) return;
+    suppressClick = true;
+    row.style.transition = "transform .22s ease, box-shadow .22s ease";
+    row.style.transform = "";
+    row.classList.remove("is-lifted");
+    setTimeout(function () {
+      if (row && row.style) row.style.transition = "";
+      if (info.moved) commitDomOrder();
+      suppressClick = false;
+    }, info.moved ? 230 : 0);
+  }
+
+  function onOrderPointerUp(e) {
+    if (!drag || e.pointerId !== drag.pointer) return;
+    finishDrag();
+  }
+
+  function focusRow(key) {
+    if (!el.order) return;
+    var rows = el.order.querySelectorAll("li");
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      if (rows[i].getAttribute("data-key") === key) { rows[i].focus(); return; }
+    }
   }
 
   function maybeAutoResume() {
@@ -1007,7 +1149,8 @@
     }
     if (el.missing && state.missing.length) {
       el.missing.hidden = false;
-      el.missing.textContent = "We couldn’t find these on the map: " + state.missing.join(", ") + ".";
+      el.missing.textContent = "We couldn’t find these on the map: " +
+        state.missing.map(function (m) { return m && m.name ? m.name : String(m); }).join(", ") + ".";
     }
     normalize();
     if (state.active && complete()) state.active = false;

@@ -95,17 +95,27 @@ test("urls that are not http(s) are dropped", function () {
   assert.equal(L.telHref("(760) 232-6999"), "tel:7602326999");
 });
 
-test("the placeholder lineup matches the fallback stand file", function () {
+test("the crawl lineup matches stands we already have an address for", function () {
   var config = JSON.parse(readFileSync(join(root, "data/crawl2026.json"), "utf8"));
   var stands = JSON.parse(readFileSync(join(root, "data/stands.json"), "utf8")).stands;
-  assert.equal(config.placeholder, true);
-  assert.equal(config.date, "");
-  assert.equal(config.time, "");
-  assert.equal(config.start, "");
-  assert.equal(config.prizes, "");
-  assert.ok(config.participants.length >= 5 && config.participants.length <= 8);
-  var found = L.matchParticipants(stands, config.participants);
+  assert.equal(config.placeholder, false);
+  assert.match(config.date, /December 19 and 20/);
+  assert.match(config.time, /9 AM/);
+  assert.match(config.prizes, /#RamonaFarmStandCrawl/);
+  assert.equal(config.participants.length, 14);
+  var extra = [
+    { name: "The Coop", lat: 33.0106976, lng: -116.87, instagram: "https://www.instagram.com/Instathe_coop_farm_stand/" },
+    { name: "Magnolia Ln Market", lat: 33.0516902, lng: -116.86 },
+    { name: "Happy Homestead Farmstand", lat: 33.0520769, lng: -116.87 },
+    { name: "The Corner Coop & Bakery", lat: 33.0247051, lng: -116.87, instagram: "https://www.instagram.com/thecornercoopandbakery/" },
+    { name: "Sophia's Sweet & Savory Kitchen", lat: 33.039415, lng: -116.87 },
+    { name: "Meyers Homestead", lat: 33.026124, lng: -116.9, instagram: "https://www.instagram.com/meyers_homestead/" }
+  ];
+  var found = L.matchParticipants(stands.concat(extra), config.participants);
   assert.deepEqual(found.missing, []);
-  assert.equal(found.matched.length, config.participants.length);
+  assert.equal(found.matched.length, 14);
   found.matched.forEach(function (s) { assert.equal(L.located(s), true); });
+  assert.equal(found.matched[1].crawlName, "The Coop Farm Stand");
+  assert.equal(found.matched[1].name, "The Coop");
+  assert.equal(found.matched[2].name, "Magnolia Ln Market");
 });

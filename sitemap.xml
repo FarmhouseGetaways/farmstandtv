@@ -2,8 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://farmstandtv.com/</loc><priority>1.0</priority></url>
   <url><loc>https://farmstandtv.com/maps</loc><priority>1.0</priority></url>
-  <url><loc>https://farmstandtv.com/crawl2026</loc><priority>0.8</priority></url>
-  <url><loc>https://farmstandtv.com/crawl2026/map</loc><priority>0.8</priority></url>
   <url><loc>https://farmstandtv.com/tours</loc><priority>0.7</priority></url>
   <url><loc>https://farmstandtv.com/about</loc><priority>0.6</priority></url>
   <url><loc>https://farmstandtv.com/submit</loc><priority>0.6</priority></url>
