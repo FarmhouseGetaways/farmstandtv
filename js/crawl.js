@@ -36,6 +36,10 @@
     var open = standsOpen(pack);
     var soon = document.getElementById("crawl-soon");
     if (soon) soon.hidden = open;
+    if (!open) {
+      var soonLine = document.getElementById("crawl-soon-line");
+      if (soonLine) soonLine.textContent = CrawlLogic.standCountLine(pack.participantCount);
+    }
     Array.prototype.forEach.call(document.querySelectorAll(".needs-stands"), function (el) {
       el.hidden = !open;
     });

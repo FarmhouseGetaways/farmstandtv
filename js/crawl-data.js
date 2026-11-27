@@ -51,6 +51,7 @@
         prizes: config.prizes || "",
         firstStop: config.firstStop || "",
         showStands: config.showStands === true,
+        participantCount: (config.participants || []).length,
         source: feed.source,
         matched: logic.pinFirst(result.matched, config.firstStop),
         route: logic.routeFromFirst(result.matched, config.firstStop),
