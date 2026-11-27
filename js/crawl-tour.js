@@ -791,8 +791,8 @@
         el.idle.textContent = "You’ve stamped every stand. Start over clears them on this phone.";
         show(el.idle, true);
       } else if (!state.active) {
-        el.idle.textContent = "These are the stands on the crawl. Start the tour and you’ll show up on the map. The suggested order starts at " +
-          (state.original.length ? shown(state.original[0]) : "the first stop") + ".";
+        el.idle.textContent = "Tap Start the tour and you’ll show up on the map. The suggested order starts at " +
+          (state.original.length ? shown(state.original[0]) : "the first stop") + ". You can drag the stops into any order.";
         show(el.idle, true);
       } else {
         show(el.idle, false);
