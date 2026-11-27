@@ -379,6 +379,17 @@
     } catch (e) { return ""; }
   }
 
+  /* Public coming-soon line. The number is how many participants are in
+     the crawl file, not how many matched the live feed. */
+  function standCountLine(n) {
+    n = parseInt(n, 10);
+    if (!isFinite(n) || n < 0) n = 0;
+    var line = n === 1
+      ? "There is currently 1 stand participating."
+      : "There are currently " + n + " stands participating, with more joining every week.";
+    return line + " The full list is coming soon.";
+  }
+
   function telHref(phone) {
     var d = String(phone == null ? "" : phone).replace(/[^0-9+]/g, "");
     return d ? "tel:" + d : "";
@@ -406,6 +417,7 @@
     shouldArrive: shouldArrive,
     safeUrl: safeUrl,
     telHref: telHref,
-    previewBase: previewBase
+    previewBase: previewBase,
+    standCountLine: standCountLine
   };
 });

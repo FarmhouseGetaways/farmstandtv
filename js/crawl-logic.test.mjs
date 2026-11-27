@@ -105,6 +105,10 @@ test("the crawl lineup matches stands we already have an address for", function 
   assert.equal(config.participants.length, 14);
   assert.equal(config.firstStop, "mini-barn-market");
   assert.equal(config.showStands, false);
+  assert.equal(L.standCountLine(config.participants.length),
+    "There are currently " + config.participants.length + " stands participating, with more joining every week. The full list is coming soon.");
+  assert.equal(L.standCountLine(1),
+    "There is currently 1 stand participating. The full list is coming soon.");
   var extra = [
     { name: "The Coop", lat: 33.0106976, lng: -116.87, instagram: "https://www.instagram.com/Instathe_coop_farm_stand/" },
     { name: "Magnolia Ln Market", lat: 33.0516902, lng: -116.86 },
