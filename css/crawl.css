@@ -719,10 +719,11 @@ body.crawl-tour .masthead { flex-shrink: 0; }
 .tour-title {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: 1.25rem;
   line-height: 1;
   letter-spacing: -.02em;
-  margin: .15rem 0 .35rem;
+  margin: .1rem 0 .25rem;
+  color: var(--ink-faint);
 }
 .tour-progress {
   margin: 0 0 .7rem;
@@ -757,9 +758,43 @@ body.crawl-tour .masthead { flex-shrink: 0; }
 .tour-leg h2 {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(1.7rem, 4vw, 2.2rem);
-  line-height: 1.05;
-  margin: .15rem 0 .3rem;
+  font-size: clamp(2.15rem, 8vw, 2.8rem);
+  line-height: 1.02;
+  margin: .2rem 0 .35rem;
+}
+.tour-secondary {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: .35rem 1.2rem;
+  margin: .15rem 0 .2rem;
+}
+.tour-secondary button {
+  border: 0;
+  background: transparent;
+  color: #7E1E2E;
+  font: inherit;
+  font-size: .95rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .16em;
+  padding: .4rem .15rem;
+}
+.tour-end {
+  display: block;
+  margin: 1.25rem auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: .8rem;
+  text-decoration: underline;
+  text-underline-offset: .15em;
+}
+#order-panel { margin-top: .8rem; }
+.stamp-dots i.is-skip {
+  border-style: solid;
+  background: #E4DDD0;
 }
 .tour-meta { margin: 0; font-weight: 700; font-size: 1.02rem; }
 .tour-addr, .tour-hours { margin: .15rem 0 0; color: var(--ink-soft); font-size: .9rem; }
@@ -767,7 +802,7 @@ body.crawl-tour .masthead { flex-shrink: 0; }
 .tour-note { margin: .45rem 0 0; color: #7E1E2E; font-size: .84rem; }
 .tour-fine { margin: .7rem 0 0; color: var(--ink-faint); font-size: .78rem; }
 .tour-fine a { color: #7E1E2E; }
-.tour-actions { display: flex; flex-direction: column; gap: .45rem; margin-top: .75rem; }
+.tour-actions { display: flex; flex-direction: column; gap: .45rem; margin-top: 1rem; }
 .tour-actions .btn { width: 100%; text-align: center; white-space: normal; }
 .tour-sheet .btn-go { background: #E4C56A; color: #1A1408; border-color: #E4C56A; }
 .tour-sheet .btn-go:hover { background: #F4E2A2; color: #1A1408; }
