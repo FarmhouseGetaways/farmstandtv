@@ -127,6 +127,13 @@ test("the crawl lineup matches stands we already have an address for", function 
   assert.equal(route[0].name, "Mini Barn Market");
   assert.equal(route.length, 14);
   assert.equal(route.filter(function (s) { return s.name === "Mini Barn Market"; }).length, 1);
+  assert.ok(config.hideHours.indexOf("mini-barn-market") !== -1);
+  var barn = found.matched.filter(function (s) { return s.name === "Mini Barn Market"; })[0];
+  assert.ok(barn.hours);
+  L.applyHideHours(found.matched, config.hideHours);
+  assert.equal(barn.hours, "");
+  var kept = found.matched.filter(function (s) { return s.name !== "Mini Barn Market" && s.hours; });
+  assert.ok(kept.length > 0);
 });
 
 test("suggested drive keeps the configured stop first and leaves from there", function () {

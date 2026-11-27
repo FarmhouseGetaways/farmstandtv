@@ -247,6 +247,20 @@
     return false;
   }
 
+  /* hideHours in the crawl file is the same kind of token as firstStop.
+     Hours are cleared on the crawl copies only. The farmstand map is untouched. */
+  function applyHideHours(stands, tokens) {
+    var list = tokens || [];
+    if (!list.length) return stands;
+    (stands || []).forEach(function (s) {
+      var i;
+      for (i = 0; i < list.length; i++) {
+        if (isFirstStop(s, list[i])) { s.hours = ""; break; }
+      }
+    });
+    return stands;
+  }
+
   function pinFirst(stands, token) {
     var list = (stands || []).slice();
     var anchor = null;
@@ -370,6 +384,7 @@
     located: located,
     matchParticipants: matchParticipants,
     pinFirst: pinFirst,
+    applyHideHours: applyHideHours,
     routeFromFirst: routeFromFirst,
     haversine: haversine,
     bearing: bearing,
