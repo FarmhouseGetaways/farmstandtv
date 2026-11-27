@@ -50,6 +50,7 @@
         start: config.start || "",
         prizes: config.prizes || "",
         firstStop: config.firstStop || "",
+        showStands: config.showStands === true,
         source: feed.source,
         matched: logic.pinFirst(result.matched, config.firstStop),
         route: logic.routeFromFirst(result.matched, config.firstStop),
