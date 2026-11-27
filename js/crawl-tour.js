@@ -47,6 +47,7 @@
     original: [],
     stands: [],
     visited: {},
+    skipped: {},
     active: false,
     missing: [],
     placeholder: true,
@@ -108,6 +109,13 @@
   function keyOf(s) { return CrawlLogic.standKey(s); }
   function shown(s) { return s ? (s.crawlName || s.name || "") : ""; }
   function isVis(s) { return !!state.visited[keyOf(s)]; }
+  function isSkipped(s) { return !!(s && state.skipped[keyOf(s)]); }
+  function isDone(s) { return isVis(s) || isSkipped(s); }
+  function isAnchor(s) {
+    if (!s) return false;
+    return CrawlLogic.slugify(s.name) === "mini-barn-market" ||
+      CrawlLogic.slugify(s.crawlName || "") === "mini-barn-market";
+  }
 
   function visitedCount() {
     var n = 0;
@@ -116,24 +124,32 @@
   }
 
   function complete() {
-    return state.stands.length > 0 && visitedCount() === state.stands.length;
+    return state.stands.length > 0 && state.stands.every(isDone);
   }
 
   function nextStop() {
     var i;
-    for (i = 0; i < state.stands.length; i++) if (!isVis(state.stands[i])) return state.stands[i];
+    for (i = 0; i < state.stands.length; i++) if (!isDone(state.stands[i])) return state.stands[i];
     return null;
   }
 
   function unvisited() {
-    return state.stands.filter(function (s) { return !isVis(s); });
+    return state.stands.filter(function (s) { return !isDone(s); });
   }
 
   function normalize() {
     var vis = [];
     var rest = [];
-    state.stands.forEach(function (s) { (isVis(s) ? vis : rest).push(s); });
-    state.stands = vis.concat(rest);
+    var skipped = [];
+    var anchor = null;
+    state.stands.forEach(function (s) {
+      if (isVis(s)) vis.push(s);
+      else if (isSkipped(s)) skipped.push(s);
+      else if (!anchor && isAnchor(s)) anchor = s;
+      else rest.push(s);
+    });
+    if (anchor) rest.unshift(anchor);
+    state.stands = vis.concat(rest, skipped);
   }
 
   function setStatus(msg) {
@@ -153,10 +169,14 @@
   function save() {
     var order = state.stands.map(keyOf);
     var visited = [];
-    state.stands.forEach(function (s) { if (isVis(s)) visited.push(keyOf(s)); });
+    var skipped = [];
+    state.stands.forEach(function (s) {
+      if (isVis(s)) visited.push(keyOf(s));
+      else if (isSkipped(s)) skipped.push(keyOf(s));
+    });
     try {
       localStorage.setItem(KEY, JSON.stringify({
-        v: 2, order: order, visited: visited, started: !!state.active
+        v: 2, order: order, visited: visited, skipped: skipped, started: !!state.active
       }));
     } catch (e) { /* private mode, full disk — the tour still runs */ }
   }
@@ -164,7 +184,7 @@
   function grab() {
     ["tour-progress", "tour-status", "tour-leg", "leg-kicker", "leg-name", "leg-meta",
      "leg-addr", "leg-hours", "leg-note", "leg-nav", "leg-stamp", "leg-skip",
-     "btn-start", "btn-end", "btn-suggest", "btn-pick", "btn-reset", "btn-recenter",
+     "btn-start", "btn-end", "btn-order", "btn-suggest", "btn-pick", "btn-reset", "btn-recenter",
      "pick-help", "tour-order", "tour-idle", "cel-name", "cel-detail", "cel-next",
      "crawl-missing"].forEach(function (id) {
       el[id] = document.getElementById(id);
@@ -183,6 +203,7 @@
     el.skip = el["leg-skip"];
     el.start = el["btn-start"];
     el.end = el["btn-end"];
+    el.orderBtn = el["btn-order"];
     el.suggest = el["btn-suggest"];
     el.pick = el["btn-pick"];
     el.reset = el["btn-reset"];
@@ -404,7 +425,9 @@
   }
 
   function routePairs() {
-    var stands = state.stands.filter(CrawlLogic.located);
+    var stands = state.stands.filter(function (s) {
+      return CrawlLogic.located(s) && !isSkipped(s);
+    });
     var list = [];
     var i;
     for (i = 0; i < stands.length - 1; i++) {
@@ -737,15 +760,33 @@
     var n;
     for (n = 0; n < state.stands.length; n++) if (keyOf(state.stands[n]) === key) i = n;
     if (i < 0) return;
+    if (isAnchor(state.stands[i]) || isDone(state.stands[i])) return;
     var j = i + dir;
     if (j < 0 || j >= state.stands.length) return;
-    if (isVis(state.stands[i]) || isVis(state.stands[j])) return;
+    if (isDone(state.stands[j]) || isAnchor(state.stands[j])) return;
     var tmp = state.stands[i];
     state.stands[i] = state.stands[j];
     state.stands[j] = tmp;
+    normalize();
     save();
     render();
     refreshRoute();
+  }
+
+  function skipStop() {
+    var next = nextStop();
+    if (!next || isAnchor(next)) return;
+    state.skipped[keyOf(next)] = true;
+    normalize();
+    save();
+    render();
+    refreshRoute();
+    if (complete()) {
+      state.active = false;
+      stopWatch();
+      save();
+      setStatus("You’ve visited every stand.");
+    }
   }
 
   function commitDomOrder() {
@@ -796,6 +837,7 @@
     stopWatch();
     state.active = false;
     state.visited = {};
+    state.skipped = {};
     state.stands = state.original.slice();
     state.celebrating = false;
     state.user = null;
@@ -856,7 +898,7 @@
     if (dots) {
       var marks = "";
       state.stands.forEach(function (s) {
-        marks += "<i" + (isVis(s) ? ' class="is-on"' : "") + "></i>";
+        marks += '<i class="' + (isVis(s) ? "is-on" : (isSkipped(s) ? "is-skip" : "")) + '"></i>';
       });
       dots.innerHTML = marks;
     }
@@ -890,15 +932,14 @@
       }
       updateLegReadout();
     }
-    show(el.stamp, !!(state.active && next && !done));
-    show(el.skip, !!(state.active && unvisited().length > 1));
+    show(el.nav, !!(state.active && next));
+    show(el.skip, !!(state.active && next && !isAnchor(next)));
     show(el.note, false);
 
     show(el.start, !state.active && !done);
     if (el.start) el.start.textContent = nVis > 0 ? "Resume the tour" : "Start the tour";
     show(el.end, state.active && !done);
-    show(el.suggest, !done && state.stands.length > 1);
-    show(el.recenter, !!state.map);
+    if (el.orderBtn) show(el.orderBtn, !done && unvisited().length > 1);
 
     if (el.order) {
       el.order.innerHTML = state.stands.map(function (s, i) {
@@ -906,11 +947,21 @@
         var vis = isVis(s);
         var isNext = next && keyOf(next) === key;
         var cls = (vis ? "is-visited" : "") + (isNext ? " is-next" : "");
+        var anchor = isAnchor(s);
+        var skipped = isSkipped(s);
         var label = shown(s) + (vis
           ? ". Stamped."
-          : ". Press and hold to move it. Alt and the arrow keys move it.");
-        var side = vis ? '<span class="ord-stamp">Stamped</span>' : "";
-        return '<li class="' + cls + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
+          : skipped
+            ? ". Skipped."
+            : anchor
+              ? ". Stays first."
+              : ". Press and hold to move it. Alt and the arrow keys move it.");
+        var side = vis
+          ? '<span class="ord-stamp">Stamped</span>'
+          : skipped
+            ? '<span class="ord-stamp">Skipped</span>'
+            : "";
+        return '<li class="' + cls + (anchor ? " is-anchor" : "") + '" tabindex="0" data-key="' + esc(key) + '" data-visited="' + (vis || skipped ? "1" : "0") + '" data-anchor="' + (anchor ? "1" : "0") + '" aria-label="' + esc(label) + '">' +
           '<span class="ord-num">' + (i + 1) + "</span>" +
           '<span class="ord-text"><span class="ord-name">' + esc(shown(s)) +
             (s.ours ? ' <span class="fsrow-ours">Ours</span>' : "") + "</span>" +
@@ -925,28 +976,15 @@
   function bind() {
     if (el.start) el.start.addEventListener("click", startWatch);
     if (el.end) el.end.addEventListener("click", endTour);
-    if (el.stamp) el.stamp.addEventListener("click", function () {
-      var next = nextStop();
-      if (next) stamp(next);
+    if (el.skip) el.skip.addEventListener("click", skipStop);
+    if (el.orderBtn) el.orderBtn.addEventListener("click", function () {
+      var panel = document.getElementById("order-panel");
+      if (!panel) return;
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) {
+        try { panel.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); } catch (e) {}
+      }
     });
-    if (el.skip) el.skip.addEventListener("click", function () {
-      var rest = unvisited();
-      if (rest.length < 2) return;
-      var moved = rest[0];
-      state.stands = state.stands.filter(function (s) { return s !== moved; });
-      state.stands.push(moved);
-      normalize();
-      save();
-      render();
-      refreshRoute();
-    });
-    if (el.suggest) el.suggest.addEventListener("click", function () {
-      applySuggestion();
-      var who = state.stands.length ? shown(state.stands[0]) : "the first stop";
-      setStatus("Starts at " + who + ". Press and hold a stop to move it.");
-    });
-    if (el.reset) el.reset.addEventListener("click", startOver);
-    if (el.recenter) el.recenter.addEventListener("click", recenter);
     if (el.celNext) el.celNext.addEventListener("click", closeCelebrate);
     if (el.dialog) el.dialog.addEventListener("close", onCelebrateClosed);
 
@@ -998,7 +1036,7 @@
     if (e.pointerType === "mouse" && e.button !== 0) return;
     if (e.target.closest && e.target.closest("button, a")) return;
     var row = e.target.closest ? e.target.closest("#tour-order li") : null;
-    if (!row || row.getAttribute("data-visited") === "1") return;
+    if (!row || row.getAttribute("data-visited") === "1" || row.getAttribute("data-anchor") === "1") return;
     if (drag && drag.lifted) return;
     var rect = row.getBoundingClientRect();
     drag = {
@@ -1099,6 +1137,7 @@
     for (i = 0; i < rows.length; i++) {
       if (rows[i] === drag.row) continue;
       if (rows[i].getAttribute("data-visited") === "1") continue;
+      if (rows[i].getAttribute("data-anchor") === "1") continue;
       var r = rows[i].getBoundingClientRect();
       spots.push({ el: rows[i], mid: r.top + r.height / 2 });
     }
@@ -1224,6 +1263,9 @@
     var saved = CrawlLogic.reconcile(loadSaved(), state.original);
     state.stands = saved.order;
     state.visited = saved.visited;
+    state.skipped = {};
+    var raw = loadSaved();
+    ((raw && raw.skipped) || []).forEach(function (k) { state.skipped[String(k)] = true; });
     state.active = !!(saved.started && !complete());
     if (!state.placeholder) {
       Array.prototype.forEach.call(document.querySelectorAll("[data-ph]"), function (node) {

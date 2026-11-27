@@ -33,7 +33,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#7E1E2E">
 <link rel="stylesheet" href="/css/site.css?v=20261127b">
-<link rel="stylesheet" href="/css/crawl.css?v=20261127j">
+<link rel="stylesheet" href="/css/crawl.css?v=20261127k">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 </head>
 <body class="crawl crawl-tour">
@@ -83,25 +83,26 @@
       <p id="leg-note" class="tour-note is-off"></p>
       <div class="tour-actions">
         <a id="leg-nav" class="btn btn-go tour-directions" target="_blank" rel="noopener" href="#">Directions</a>
-        <button id="leg-stamp" class="btn btn-line is-off" type="button">Stamp this stop</button>
-        <button id="leg-skip" class="btn btn-line is-off" type="button">Skip for now</button>
       </div>
     </div>
 
     <p id="tour-status" class="tour-status" role="status"></p>
 
-    <div class="tour-actions">
-      <button id="btn-start" class="btn btn-go" type="button">Start the tour</button>
-      <button id="btn-end" class="btn btn-line is-off" type="button">End the tour</button>
-      <button id="btn-suggest" class="btn btn-line" type="button">Suggest an order</button>
-      <button id="btn-recenter" class="btn btn-line is-off" type="button">Show where I am</button>
-      <button id="btn-reset" class="btn btn-line" type="button">Start over</button>
+    <button id="btn-start" class="btn btn-go tour-directions" type="button">Start the tour</button>
+
+    <div class="tour-secondary">
+      <button id="leg-skip" class="is-off" type="button">Skip this stop</button>
+      <button id="btn-order" type="button">Change the order</button>
     </div>
 
-    <p class="reorder-hint" id="reorder-hint">Press and hold a stop to move it.</p>
-    <p class="sr-only">With a keyboard, focus a stop and hold Alt while pressing the up or down arrow.</p>
-    <ol id="tour-order" class="tour-order" aria-label="Tour order"></ol>
+    <div id="order-panel" hidden>
+      <p class="reorder-hint" id="reorder-hint">Press and hold a stop to move it. Mini Barn Market stays first.</p>
+      <p class="sr-only">With a keyboard, focus a stop and hold Alt while pressing the up or down arrow.</p>
+      <ol id="tour-order" class="tour-order" aria-label="Tour order"></ol>
+    </div>
+
     <p class="tour-fine">More stands are joining every week. <a href="/crawl2026">About the crawl</a></p>
+    <button id="btn-end" class="tour-end is-off" type="button">End the tour</button>
     <noscript><p><a href="/crawl2026">Back to the crawl.</a></p></noscript>
   </aside>
 </main>
